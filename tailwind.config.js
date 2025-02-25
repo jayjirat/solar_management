@@ -5,4 +5,7 @@ module.exports = {
     "./authentication/templates/**/*.{html,js}",
   ],
   plugins: [require("daisyui")],
+  daisyui: {
+    themes: ["bumblebee"],
+  },
 };
