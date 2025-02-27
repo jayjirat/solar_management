@@ -10,8 +10,7 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         
-        # Your login logic here
-        # ...
+        #login logic...
         
     return render(request, 'login.html')
 
