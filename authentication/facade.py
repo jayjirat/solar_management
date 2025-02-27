@@ -1,0 +1,272 @@
+from django.shortcuts import redirect
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.conf import settings
+from .models import CustomUser
+import requests
+from urllib.parse import urlencode
+from django.utils.crypto import get_random_string
+from django.contrib.auth import get_user_model
+
+class SocialLoginFacade:
+    User = get_user_model()
+    def __init__(self, provider):
+        self.provider = provider
+
+    def login(self, request):
+        if self.provider == 'google':
+            return self.google_login(request)
+        elif self.provider == 'facebook':
+            return self.facebook_login(request)
+        else:
+            raise ValueError("Unsupported provider")
+
+    def callback(self, request):
+        if self.provider == 'google':
+            return self.google_callback(request)
+        elif self.provider == 'facebook':
+            return self.facebook_callback(request)
+        else:
+            raise ValueError("Unsupported provider")
+
+    def google_login(self, request):
+        # Google OAuth2 endpoint
+        authorization_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
+        
+        # Get client ID from settings
+        client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+        
+        # Prepare callback URL
+        redirect_uri = request.build_absolute_uri('/login/google/callback/')
+        
+        # Prepare parameters for authorization request
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'scope': 'email profile',
+            'access_type': 'offline',
+            'include_granted_scopes': 'true',
+        }
+        
+        # Build authorization URL
+        authorization_url = f"{authorization_endpoint}?{urlencode(params)}"
+        
+        # Redirect user to authorization URL
+        return redirect(authorization_url)
+
+
+    def google_callback(self, request):
+        # Check if there's an error parameter
+        if 'error' in request.GET:
+            messages.error(request, f"Google authentication error: {request.GET['error']}")
+            return redirect('login')
+        
+        # Get authorization code from request
+        code = request.GET.get('code')
+        
+        if not code:
+            messages.error(request, "No authorization code received from Google.")
+            return redirect('login')
+        
+        # Exchange code for tokens
+        token_endpoint = "https://oauth2.googleapis.com/token"
+        client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+        client_secret = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret']
+        redirect_uri = request.build_absolute_uri('/login/google/callback/')
+        
+        token_data = {
+            'code': code,
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'redirect_uri': redirect_uri,
+            'grant_type': 'authorization_code',
+        }
+        
+        # Get tokens
+        token_response = requests.post(token_endpoint, data=token_data)
+        
+        if token_response.status_code != 200:
+            messages.error(request, "Failed to obtain access token from Google.")
+            return redirect('login')
+        
+        token_json = token_response.json()
+        access_token = token_json.get('access_token')
+        
+        # Get user info using access token
+        userinfo_endpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
+        headers = {'Authorization': f'Bearer {access_token}'}
+        
+        userinfo_response = requests.get(userinfo_endpoint, headers=headers)
+        
+        if userinfo_response.status_code != 200:
+            messages.error(request, "Failed to get user info from Google.")
+            return redirect('login')
+        
+        userinfo = userinfo_response.json()
+        
+        # Extract user data
+        email = userinfo.get('email')
+        email_verified = userinfo.get('email_verified', False)
+        
+        if not email or not email_verified:
+            messages.error(request, "Google did not provide a verified email address.")
+            return redirect('login')
+        
+        # Check if user exists
+        try:
+            user = User.objects.get(email=email)
+            # User exists, set the backend attribute and log them in
+            user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
+            auth_login(request, user)  # Now this will work
+            # messages.success(request, f"Successfully logged in as {user.username}")
+        except User.DoesNotExist:
+            # User does not exist, create a new user
+            username = email.split('@')[0]
+            
+            # Check if username already exists and modify if needed
+            base_username = username
+            count = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{count}"
+                count += 1
+            
+            # Create new user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=get_random_string(8)  # Generate a random password
+            )
+            
+            # Create custom user with default role
+            CustomUser.objects.create(
+                user=user,
+                # role=RoleEnum.DATA_ANALYST.value[0]  # Set default role
+            )
+            
+            # Set the backend attribute and log in the new user
+            user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
+            auth_login(request, user)  # Now this will work
+            # messages.success(request, f"Account created and logged in as {user.username}")
+
+        # Redirect to home page
+        return redirect('home')
+
+    def facebook_login(self, request):
+        # Facebook OAuth2 endpoint
+        authorization_endpoint = "https://www.facebook.com/v9.0/dialog/oauth"
+        
+        # Get client ID from settings
+        client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
+        
+        # Prepare callback URL
+        redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
+        
+        # Prepare parameters for authorization request
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'scope': 'email',
+        }
+        
+        # Build authorization URL
+        authorization_url = f"{authorization_endpoint}?{urlencode(params)}"
+        
+        # Redirect user to authorization URL
+        return redirect(authorization_url)
+
+    def facebook_callback(self, request):
+        # Check if there's an error parameter
+        if 'error' in request.GET:
+            messages.error(request, f"Facebook authentication error: {request.GET['error']}")
+            return redirect('login')
+        
+        # Get authorization code from request
+        code = request.GET.get('code')
+        
+        if not code:
+            messages.error(request, "No authorization code received from Facebook.")
+            return redirect('login')
+        
+        # Exchange code for access token
+        token_endpoint = "https://graph.facebook.com/v9.0/oauth/access_token"
+        client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
+        client_secret = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['secret']
+        redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
+        
+        token_data = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'client_secret': client_secret,
+            'code': code,
+        }
+        
+        # Get access token
+        token_response = requests.get(token_endpoint, params=token_data)
+        
+        if token_response.status_code != 200:
+            messages.error(request, "Failed to obtain access token from Facebook.")
+            return redirect('login')
+        
+        token_json = token_response.json()
+        access_token = token_json.get('access_token')
+        
+        # Get user info using access token
+        userinfo_endpoint = "https://graph.facebook.com/me?fields=id,name,email"
+        headers = {'Authorization': f'Bearer {access_token}'}
+        
+        userinfo_response = requests.get(userinfo_endpoint, headers=headers)
+        
+        if userinfo_response.status_code != 200:
+            messages.error(request, "Failed to get user info from Facebook.")
+            return redirect('login')
+        
+        userinfo = userinfo_response.json()
+        
+        # Extract user data
+        email = userinfo.get('email')
+        
+        if not email:
+            messages.error(request, "Facebook did not provide an email address.")
+            return redirect('login')
+        
+        # Check if user exists
+        try:
+            user = User.objects.get(email=email)
+            # User exists, log them in
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, user)
+            # messages.success(request, f"Successfully logged in as {user.username}")
+        except User.DoesNotExist:
+            # User does not exist, create a new user
+            username = email.split('@')[0]
+            
+            # Check if username already exists and modify if needed
+            base_username = username
+            count = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{count}"
+                count += 1
+            
+            # Create new user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=get_random_string(8)  # Generate a random password
+            )
+            
+            # Create custom user with default role
+            CustomUser.objects.create(
+                user=user,
+                # role=RoleEnum.DATA_ANALYST.value[0]  # Set default role
+            )
+            
+            # Log in the new user
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, user)
+            # messages.success(request, f"Account created and logged in as {user.username}")
+
+        # Redirect to home page
+        return redirect('home')
