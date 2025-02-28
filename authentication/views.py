@@ -9,7 +9,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
 def home(request):
-    return render(request, 'home.html') 
+    return render(request, 'home.html')
+
+def signup(request):
+    return render(request, 'signup.html')
 
 @api_view(['GET'])
 def get_users(request):
@@ -35,7 +38,7 @@ def register(request):
         return Response({'error': 'Invalid email format'}, status=status.HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Account with this email already exits'}, status=status.HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(email=email).exists():
         return Response({'error': 'Account with this email already exits'}, status=status.HTTP_400_BAD_REQUEST)
