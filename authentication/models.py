@@ -15,6 +15,8 @@ class CustomUser(models.Model):
     role = models.CharField(
         max_length=20,
         choices=[(tag.value[0], tag.value[1]) for tag in RoleEnum],
+        blank=True,
+        null=True
     )
 
     def __str__(self):
