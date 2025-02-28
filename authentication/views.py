@@ -5,10 +5,19 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import LoginSerializer
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 def home(request):
     return render(request, 'home.html')
+
+
+@ensure_csrf_cookie
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')  # Or some other URL
+    return render(request, 'login.html')
 
 
 class LoginView(APIView):
@@ -28,14 +37,3 @@ class LoginView(APIView):
                 })
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self, request):
-        if request.user.is_authenticated:
-            return redirect('home')
-        return render(request, 'login.html')
-
-
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('home')  # Or some other URL
-    return render(request, 'login.html')

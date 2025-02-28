@@ -16,34 +16,23 @@
                 <p class="text-center text-gray-600 mb-3">Effortless maintenance and smart monitoring</p>
                 <p class="text-center font-bold">SIGN IN</p>
                 <!-- Login Form -->
-                <form method="POST" action="" enctype="application/json">
+                <form id="login-form">
+                    <div id="error-message" class="hidden alert alert-error">
+                        <p id="error-text"></p>
+                    </div>
                     <!-- Username Field -->
                     <div class="form-control">
                         <label class="label" for="username">
                             <span class="label-text">Email</span>
                         </label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter your username"
-                            class="input input-bordered"
-                            required
-                        />
+                        <input type="text" name="username" placeholder="Username" class="input input-bordered" required />
                     </div>
                     <!-- Password Field -->
                     <div class="form-control mt-4">
                         <label class="label" for="password">
                             <span class="label-text">Password</span>
                         </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            class="input input-bordered"
-                            required
-                        />
+                        <input type="password" name="password" placeholder="Password" class="input input-bordered" required />
                     </div>
                     <!-- Submit Button -->
                     <div class="form-control mt-6">
@@ -69,3 +58,44 @@
 </div>
 </body>
 </html>
+
+<script>
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const username = this.elements.username.value;
+        const password = this.elements.password.value;
+        const errorDiv = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        
+        fetch('/api/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Store tokens in localStorage
+            localStorage.setItem('access_token', data.access);
+            localStorage.setItem('refresh_token', data.refresh);
+            localStorage.setItem('username', data.username);
+            
+            // Redirect to dashboard
+            window.location.href = '/dashboard/';
+        })
+        .catch(error => {
+            errorText.textContent = 'Invalid username or password';
+            errorDiv.classList.remove('hidden');
+        });
+    });
+</script>
