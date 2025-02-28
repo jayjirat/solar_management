@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "authentication"
+    "authentication",
 ]
 
 REST_FRAMEWORK = {
@@ -49,7 +49,6 @@ REST_FRAMEWORK = {
 }
 
 # JWT settings
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),

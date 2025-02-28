@@ -7,10 +7,16 @@ from django.contrib.auth import authenticate
 from .serializers import LoginSerializer
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth import logout
 
 
 def home(request):
     return render(request, 'home.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 
 @ensure_csrf_cookie
@@ -37,3 +43,15 @@ class LoginView(APIView):
                 })
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()  # Blacklist the refresh token
+            return Response({"message": "Logout successful"}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
