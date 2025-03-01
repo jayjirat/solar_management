@@ -13,37 +13,39 @@ from django.conf import settings
 from django.http import JsonResponse
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 class SocialLoginFacade:
     User = get_user_model()
+
     def __init__(self, provider):
         self.provider = provider
 
     def login(self, request):
         if self.provider == 'google':
             return self.google_login(request)
-        elif self.provider == 'facebook':
-            return self.facebook_login(request)
+        # elif self.provider == 'facebook':
+        #     return self.facebook_login(request)
         else:
             raise ValueError("Unsupported provider")
 
     def callback(self, request):
         if self.provider == 'google':
             return self.google_callback(request)
-        elif self.provider == 'facebook':
-            return self.facebook_callback(request)
+        # elif self.provider == 'facebook':
+        #     return self.facebook_callback(request)
         else:
             raise ValueError("Unsupported provider")
 
     def google_login(self, request):
         # Google OAuth2 endpoint
         authorization_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
-        
+
         # Get client ID from settings
         client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
 
         # Prepare callback URL
         redirect_uri = request.build_absolute_uri('/login/google/callback/')
-        
+
         # Prepare parameters for authorization request
         params = {
             'client_id': client_id,
@@ -53,33 +55,34 @@ class SocialLoginFacade:
             'access_type': 'offline',
             'include_granted_scopes': 'true',
         }
-        
+
         # Build authorization URL
         authorization_url = f"{authorization_endpoint}?{urlencode(params)}"
-        
+
         # Redirect user to authorization URL
         return redirect(authorization_url)
-
 
     def google_callback(self, request):
         # Check if there's an error parameter
         if 'error' in request.GET:
-            messages.error(request, f"Google authentication error: {request.GET['error']}")
+            messages.error(
+                request, f"Google authentication error: {request.GET['error']}")
             return redirect('login')
-        
+
         # Get authorization code from request
         code = request.GET.get('code')
-        
+
         if not code:
-            messages.error(request, "No authorization code received from Google.")
+            messages.error(
+                request, "No authorization code received from Google.")
             return redirect('login')
-        
+
         # Exchange code for tokens
         token_endpoint = "https://oauth2.googleapis.com/token"
         client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
         client_secret = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret']
         redirect_uri = request.build_absolute_uri('/login/google/callback/')
-        
+
         token_data = {
             'code': code,
             'client_id': client_id,
@@ -87,84 +90,105 @@ class SocialLoginFacade:
             'redirect_uri': redirect_uri,
             'grant_type': 'authorization_code',
         }
-        
+
         # Get tokens
         token_response = requests.post(token_endpoint, data=token_data)
-        
+
         if token_response.status_code != 200:
-            messages.error(request, "Failed to obtain access token from Google.")
+            messages.error(
+                request, "Failed to obtain access token from Google.")
             return redirect('login')
-        
+
         token_json = token_response.json()
         access_token = token_json.get('access_token')
-        
+
         # Get user info using access token
         userinfo_endpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
         headers = {'Authorization': f'Bearer {access_token}'}
-        
+
         userinfo_response = requests.get(userinfo_endpoint, headers=headers)
-        
+
         if userinfo_response.status_code != 200:
             messages.error(request, "Failed to get user info from Google.")
             return redirect('login')
-        
+
         userinfo = userinfo_response.json()
-        
+
         # Extract user data
         email = userinfo.get('email')
         email_verified = userinfo.get('email_verified', False)
-        
+
         if not email or not email_verified:
-            messages.error(request, "Google did not provide a verified email address.")
+            messages.error(
+                request, "Google did not provide a verified email address.")
             return redirect('login')
-        
+
         user = User.objects.filter(email=email).first()
         # Check if user exists
         if user:
             # User exists, set the backend attribute and log them in
-            user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
+            # Set the backend attribute
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
             auth_login(request, user)  # Now this will work
 
         # User does not exist, create a new user
-        else: 
+        else:
             username = email
-            
+
             # Check if username already exists and modify if needed
             base_username = username
             count = 1
             while User.objects.filter(username=username).exists():
                 username = f"{base_username}{count}"
                 count += 1
-            
+
             # Create new user
             user = User.objects.create_user(
                 username=username,
                 email=email,
                 password=get_random_string(8)  # Generate a random password
             )
-            
+
             # Create custom user with default role
             CustomUser.objects.create(
                 user=user,
             )
-            
-            # Set the backend attribute and log in the new user
-            user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
-            auth_login(request, user)  # Now this will work
 
+            # Set the backend attribute and log in the new user
+            # Set the backend attribute
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, user)  # Now this will work
+        # Generate JWT token
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        # You can still use Django's session auth if needed
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        auth_login(request, user)
+
+        # Set JWT as a cookie
+        response = redirect('home')
+        response.set_cookie(
+            'access_token',
+            access_token,
+            httponly=True,  # Prevents JavaScript from reading the cookie
+            secure=True,    # Only sent over HTTPS
+            samesite='Lax'  # Protects against CSRF
+        )
         # Redirect to home page
-        return redirect('home')
+        return response
 
     # def facebook_login(self, request):
     #     # Facebook OAuth2 endpoint
     #     authorization_endpoint = "https://www.facebook.com/v9.0/dialog/oauth"
-        
+
     #     # Get client ID from settings
     #     client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
-        
+
     #     # Prepare callback URL
     #     redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
-        
+
     #     # Prepare parameters for authorization request
     #     params = {
     #         'client_id': client_id,
@@ -172,10 +196,10 @@ class SocialLoginFacade:
     #         'response_type': 'code',
     #         'scope': 'email',
     #     }
-        
+
     #     # Build authorization URL
     #     authorization_url = f"{authorization_endpoint}?{urlencode(params)}"
-        
+
     #     # Redirect user to authorization URL
     #     return redirect(authorization_url)
 
@@ -184,94 +208,95 @@ class SocialLoginFacade:
     #     if 'error' in request.GET:
     #         messages.error(request, f"Facebook authentication error: {request.GET['error']}")
     #         return redirect('login')
-        
+
     #     # Get authorization code from request
     #     code = request.GET.get('code')
-        
+
     #     if not code:
     #         messages.error(request, "No authorization code received from Facebook.")
     #         return redirect('login')
-        
+
     #     # Exchange code for access token
     #     token_endpoint = "https://graph.facebook.com/v9.0/oauth/access_token"
     #     client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
     #     client_secret = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['secret']
     #     redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
-        
+
     #     token_data = {
     #         'client_id': client_id,
     #         'redirect_uri': redirect_uri,
     #         'client_secret': client_secret,
     #         'code': code,
     #     }
-        
+
     #     # Get access token
     #     token_response = requests.get(token_endpoint, params=token_data)
-        
+
     #     if token_response.status_code != 200:
     #         messages.error(request, "Failed to obtain access token from Facebook.")
     #         return redirect('login')
-        
+
     #     token_json = token_response.json()
     #     access_token = token_json.get('access_token')
-        
+
     #     # Get user info using access token
     #     userinfo_endpoint = "https://graph.facebook.com/me?fields=id,name,email"
     #     headers = {'Authorization': f'Bearer {access_token}'}
-        
+
     #     userinfo_response = requests.get(userinfo_endpoint, headers=headers)
-        
+
     #     if userinfo_response.status_code != 200:
     #         messages.error(request, "Failed to get user info from Facebook.")
     #         return redirect('login')
-        
+
     #     userinfo = userinfo_response.json()
-        
+
     #     # Extract user data
     #     email = userinfo.get('email')
-        
+
     #     if not email:
     #         messages.error(request, "Facebook did not provide an email address.")
     #         return redirect('login')
-        
+
     #     user = User.objects.filter(email=email).first()
     #     # Check if user exists
     #     if user:
     #         # User exists, set the backend attribute and log them in
     #         user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
     #         auth_login(request, user)  # Now this will work
-            
+
     #     # User does not exist, create a new user
-    #     else: 
+    #     else:
     #         username = email
-            
+
     #         # Check if username already exists and modify if needed
     #         base_username = username
     #         count = 1
     #         while User.objects.filter(username=username).exists():
     #             username = f"{base_username}{count}"
     #             count += 1
-            
+
     #         # Create new user
     #         user = User.objects.create_user(
     #             username=username,
     #             email=email,
     #             password=get_random_string(8)  # Generate a random password
     #         )
-            
+
     #         # Create custom user with default role
     #         CustomUser.objects.create(
     #             user=user,
     #         )
-            
+
     #         # Log in the new user
     #         user.backend = 'django.contrib.auth.backends.ModelBackend'
     #         auth_login(request, user)
 
     #     # Redirect to home page
     #     return redirect('home')
-    
+
     User = get_user_model()
+
 
 class ThammasatAuthFacade:
     TU_API_URL = "https://restapi.tu.ac.th/api/v1/auth/Ad/verify"
@@ -292,7 +317,8 @@ class ThammasatAuthFacade:
 
         response_data = ThammasatAuthFacade.authenticate(username, password)
         if response_data:
-            user = ThammasatAuthFacade.process_user_data(username, response_data)
+            user = ThammasatAuthFacade.process_user_data(
+                username, response_data)
             if user:
                 return JsonResponse(ThammasatAuthFacade.generate_jwt_tokens(user), status=200)
 
@@ -310,7 +336,8 @@ class ThammasatAuthFacade:
             "PassWord": password
         }
 
-        response = requests.post(ThammasatAuthFacade.TU_API_URL, json=payload, headers=headers)
+        response = requests.post(
+            ThammasatAuthFacade.TU_API_URL, json=payload, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -322,9 +349,12 @@ class ThammasatAuthFacade:
         if response_data.get("status") is True:
             email = response_data.get("email")
             name = response_data.get("displayname_en")
-            faculty = response_data.get("faculty", response_data.get("organization", ""))
+            faculty = response_data.get(
+                "faculty", response_data.get("organization", ""))
             department = response_data.get("department", "")
-            year = 67 - int(username[:2]) + 1 if response_data.get("type") == "student" else None
+            year = 67 - \
+                int(username[:2]) + \
+                1 if response_data.get("type") == "student" else None
 
             user, created = User.objects.get_or_create(
                 username=username,
