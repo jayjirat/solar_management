@@ -36,7 +36,7 @@ class SocialLoginFacade:
         
         # Get client ID from settings
         client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
-        
+
         # Prepare callback URL
         redirect_uri = request.build_absolute_uri('/login/google/callback/')
         
@@ -123,7 +123,7 @@ class SocialLoginFacade:
 
         # User does not exist, create a new user
         else: 
-            username = email.split('@')[0]
+            username = email
             
             # Check if username already exists and modify if needed
             base_username = username
@@ -239,7 +239,7 @@ class SocialLoginFacade:
             
         # User does not exist, create a new user
         else: 
-            username = email.split('@')[0]
+            username = email
             
             # Check if username already exists and modify if needed
             base_username = username
