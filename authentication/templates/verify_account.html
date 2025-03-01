@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="bumblebee">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <title>Verify Account</title>
+</head>
+<div class="min-h-screen flex">
+    <!-- Left Side: Background Color with Sign up Card -->
+    <div class="flex-1 bg-[#FFF4E6] flex items-center justify-center p-8">
+        <div class="card w-full max-w-md bg-white shadow-xl">
+            <div class="card-body">
+                <h1 class="text-2xl font-bold text-center mb-1">Solar Cell Maintenance System</h1>
+                <p class="text-center text-gray-600 mb-3">Effortless maintenance and smart monitoring</p>
+                <p class="text-center font-bold">Verification with OTP</p>
+                <!-- Sign up Form -->
+                <form method="POST" action="" enctype="application/json">
+                    <!-- Username Field -->
+                    <div class="form-control">
+                        <label class="label" for="email">
+                            <span class="label-text">Email</span>
+                        </label>
+                        <input type="text" id="email" name="email" placeholder="Enter your Email"
+                            class="input input-bordered" required />
+                    </div>
+                    <!-- OTP Field -->
+                    <div class="form-control">
+                        <label class="label" for="OTP">
+                            <span class="label-text">OTP</span>
+                        </label>
+                        <input type="text" id="otp" name="otp" placeholder="Enter your OTP" class="input input-bordered"
+                            required />
+                    </div>
+                    <!-- Send OTP -->
+                    <div id="send-otp" class="form-control mt-6">
+                        <button type="submit" class="btn btn-primary">Send OTP</button>
+                    </div>
+                    <!-- Submit Button -->
+                    <div id="verify-otp" class="form-control mt-6">
+                        <button type="submit" class="btn btn-secondary">Verify OTP</button>
+                    </div>
+                    <!-- Sign In Link -->
+                    <div class="text-center">
+                        <p class="text-gray-600 mb-5">Already have an account?</p>
+                        <a href="#" class="btn btn-outline btn-secondary">SIGN IN</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Image -->
+    <div class="flex-1 bg-cover bg-center" style="background-image: url('{% static 'solar.jpg' %}');">
+        <!-- You can replace the image URL with your own -->
+    </div>
+</div>
+</body>
+
+</html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sendOtpButton = document.querySelector("#send-otp button");
+        const verifyOtpButton = document.querySelector("#verify-otp button");
+        const emailInput = document.getElementById("email");
+        const otpInput = document.getElementById("otp");
+
+        // Send OTP
+        sendOtpButton.addEventListener("click", async function (event) {
+            event.preventDefault();
+
+            const email = emailInput.value;
+            if (!email) {
+                alert("Please enter your email.");
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/send-otp/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert("OTP sent successfully!");
+                } else {
+                    const errorMessage = data.email ? data.email[0] : "An error occurred.";
+                    alert("Failed to send OTP: " + errorMessage);
+                }
+            } catch (error) {
+                console.error("Error sending OTP:", error);
+                alert("An error occurred while sending OTP. Please try again.");
+            }
+        });
+
+        // Verify OTP
+        verifyOtpButton.addEventListener("click", async function (event) {
+            event.preventDefault();
+
+            const email = emailInput.value;
+            const otp = otpInput.value;
+            if (!email || !otp) {
+                alert("Please enter both email and OTP.");
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/verify-otp/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert("OTP verified successfully!");
+                    window.location.href = "/login/"; // Redirect on success
+                } else {
+                    if (data.otp && data.email) {
+                        errorMessage = data.otp[0] + data.email[0];
+                    } else if (data.otp) {
+                        errorMessage = data.otp[0];
+                    } else if (data.email) {
+                        errorMessage = data.email[0];
+                    } else {
+                        errorMessage = "An error occurred.";
+                    }
+                    alert("Verification failed: " + errorMessage);
+                }
+            } catch (error) {
+                console.error("Error verifying OTP:", error);
+                alert("An error occurred while verifying OTP. Please try again.");
+            }
+        });
+    });
+
+</script>
