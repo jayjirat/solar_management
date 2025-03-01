@@ -57,9 +57,12 @@
                             if (role == 'user') {
                                 window.location.href = "/";
                             } else if (role == 'admin') {
-                                window.location.href = "/";
-                            } else {
-                                window.location.href = "/";
+                                window.location.href = "/admin-system/dashboard";
+                            } else if (role == "drone_controller") {
+                                window.location.href = "/drone-controller-system/home/"
+                            }
+                            else if (role == "data_analyst") {
+                                window.location.href = "/data-analyst-system/home/"
                             }
                         } else {
                             alert("Login failed: " + data.error);
