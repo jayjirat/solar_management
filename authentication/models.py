@@ -25,7 +25,9 @@ class CustomUser(models.Model):
     )
 
     def __str__(self):
-        return self.user.username + " " + self.role
+        role = self.role if self.role else "user"
+        return f"{self.user.username} role: {role}"
+
     
 
 class EmailOTP(models.Model):
