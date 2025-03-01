@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "authentication",
-    "admin",
+    "myadmin",
     "rest_framework",
     "rest_framework_simplejwt",
     "django_extensions",
