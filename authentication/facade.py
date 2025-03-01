@@ -114,15 +114,15 @@ class SocialLoginFacade:
             messages.error(request, "Google did not provide a verified email address.")
             return redirect('login')
         
+        user = User.objects.filter(email=email).first()
         # Check if user exists
-        try:
-            user = User.objects.get(email=email)
+        if user:
             # User exists, set the backend attribute and log them in
             user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
             auth_login(request, user)  # Now this will work
-            
-        except User.DoesNotExist:
-            # User does not exist, create a new user
+
+        # User does not exist, create a new user
+        else: 
             username = email.split('@')[0]
             
             # Check if username already exists and modify if needed
@@ -230,14 +230,15 @@ class SocialLoginFacade:
             messages.error(request, "Facebook did not provide an email address.")
             return redirect('login')
         
+        user = User.objects.filter(email=email).first()
         # Check if user exists
-        try:
-            user = User.objects.get(email=email)
-            # User exists, log them in
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            auth_login(request, user)
-        except User.DoesNotExist:
-            # User does not exist, create a new user
+        if user:
+            # User exists, set the backend attribute and log them in
+            user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
+            auth_login(request, user)  # Now this will work
+            
+        # User does not exist, create a new user
+        else: 
             username = email.split('@')[0]
             
             # Check if username already exists and modify if needed
