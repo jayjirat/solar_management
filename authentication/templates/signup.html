@@ -65,10 +65,10 @@
                     <!-- Divider -->
                     <div class="divider my-6">OR USE</div>
 
-                    <!-- Sign Up Link -->
+                    <!-- Sign In Link -->
                     <div class="text-center">
                         <p class="text-gray-600 mb-5">Already have an account?</p>
-                        <a href="#" class="btn btn-outline btn-secondary">SIGN IN</a>
+                        <a href="/login/" class="btn btn-outline btn-secondary">SIGN IN</a>
                     </div>
                 </form>
             </div>
@@ -147,10 +147,10 @@
 
                 if (response.ok) {
                     // Registration successful
-                    showAlert('Registration successful! Redirecting to login...', 'success');
+                    showAlert('Registration successful! Redirecting to Verify with OTP...', 'success');
                     // Redirect to login page after 1 second
                     setTimeout(() => {
-                        window.location.href = '/home/';
+                        window.location.href = '/verify-account/';
                     }, 1000);
                 } else {
                     // Handle errors from the API
