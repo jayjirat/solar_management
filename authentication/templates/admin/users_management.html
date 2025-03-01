@@ -1,5 +1,6 @@
 {% extends 'base.html' %} {% load static %} {% block title %}Admin - Users
-Management{% endblock%} {% block content %}
+Management{% endblock%} {% block heading %}Users Management{% endblock %} {%
+block content %} {% block content %}
 
 <div class="flex flex-row justify-between">
   <div class="flex flex-col">
@@ -7,24 +8,16 @@ Management{% endblock%} {% block content %}
     <div class="text-sm text-teal-400">Active Members</div>
   </div>
   <div>
-    <input
-      type="text"
-      placeholder="Search"
-      class="input input-bordered w-24 md:w-auto"
-    />
+    <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
   </div>
 </div>
-<div
-  class="overflow-x-auto overflow-y-auto mt-8"
-  style="max-height: calc(100% - 80px)"
->
+<div class="overflow-x-auto overflow-y-auto mt-8" style="max-height: calc(100% - 80px)">
   <table class="table">
     <!-- head -->
     <thead>
       <tr>
         <th>Username</th>
         <th>Powerplant</th>
-        <th>Phone Number</th>
         <th>Email</th>
         <th>Role</th>
         <th>Status</th>
@@ -38,16 +31,10 @@ Management{% endblock%} {% block content %}
       <tr class="hover:bg-base-300">
         <td>Hart Hagerty</td>
         <td>Desktop Support Technician</td>
-        <td>Purple</td>
         <td>Cy Ganderton</td>
         <td>Drone Controller</td>
         <td>
-          <button
-            class="btn btn-outline btn-success"
-            onclick="confirm('Are you sure you want to deactivate this user?')"
-          >
-            Active
-          </button>
+          <div class="badge badge-success">Active</div>
         </td>
         <td>
           <button class="btn btn-soft btn-accent">Manage</button>
@@ -57,58 +44,17 @@ Management{% endblock%} {% block content %}
       <tr class="hover:bg-base-300">
         <td>Hart Hagerty</td>
         <td>Desktop Support Technician</td>
-        <td>Purple</td>
         <td>Cy Ganderton</td>
         <td>Drone Controller</td>
         <td>
-          <button
-            class="btn btn-outline btn-success"
-            onclick="confirm('Are you sure you want to deactivate this user?')"
-          >
-            Active
-          </button>
+          <div class="badge badge-error">Inactive</div>
         </td>
         <td>
           <button class="btn btn-soft btn-accent">Manage</button>
         </td>
       </tr>
-      <tr class="hover:bg-base-300">
-        <td>Hart Hagerty</td>
-        <td>Desktop Support Technician</td>
-        <td>Purple</td>
-        <td>Cy Ganderton</td>
-        <td>Drone Controller</td>
-        <td>
-          <button
-            class="btn btn-outline btn-success"
-            onclick="confirm('Are you sure you want to deactivate this user?')"
-          >
-            Active
-          </button>
-        </td>
-        <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
-        </td>
-      </tr>
-      <tr class="hover:bg-base-300">
-        <td>Hart Hagerty</td>
-        <td>Desktop Support Technician</td>
-        <td>Purple</td>
-        <td>Cy Ganderton</td>
-        <td>Drone Controller</td>
-        <td>
-          <button
-            class="btn btn-outline btn-success"
-            onclick="confirm('Are you sure you want to deactivate this user?')"
-          >
-            Active
-          </button>
-        </td>
-        <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
-        </td>
-      </tr>
-      <!-- row 3 -->
+
+
     </tbody>
   </table>
 </div>

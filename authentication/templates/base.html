@@ -1,73 +1,79 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=U, initial-scale=1.0" />
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     <title>{% block title %}{% endblock %}</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="flex flex-col h-screen">
-      <!-- Main Content (Navbar + Content) -->
-      <div>
-        <!-- Navbar (Full Width) -->
-        <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
-          <div
-            tabindex="0"
-            role="button"
-            class="btn btn-ghost btn-circle avatar"
-          >
-            <div class="w-10 rounded-full">
-              <img
-                alt="Tailwind CSS Navbar component"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              />
+        <!-- Main Content (Navbar + Content) -->
+        <div>
+            <!-- Navbar (Full Width) -->
+            <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 rounded-full">
+                        <img alt="Tailwind CSS Navbar component"
+                            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                    </div>
+                </div>
+                <div class="pl-4">
+                    <div class="flex flex-col">
+                        <div class="text-lg font-bold">PengPeng</div>
+                        <div class="text-xs text-gray-900">Admin</div>
+                    </div>
+                </div>
+
+                <div class="divider divider-horizontal"></div>
+                <div class="font-bold">{% block heading %}{% endblock %}</div>
             </div>
-          </div>
-          <div class="pl-4">
-            <div class="flex flex-col">
-              <div class="text-lg font-bold">PengPeng</div>
-              <div class="text-xs text-gray-900">Admin</div>
+
+            <!-- Page Content -->
+        </div>
+        <div class="flex flex-row h-full">
+            <!-- Sidebar (Left) -->
+            <div class="w-40 lg:w-60 bg-base-100 border-r-2 border-base-900">
+                <div class="mt-4">
+                    <ul class="menu">
+                        <li class="py-2 {% block nav1 %}{% endblock %}">
+                            <a href="{% url 'dashboard' %}"
+                                class="{% if request.path == '/admin-system/dashboard/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Dashboard</a>
+                        </li>
+                        <li class="py-2">
+                            <a href="{%url 'users_management' %}"
+                                class="{% if request.path == '/admin-system/users_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Users
+                                Management</a>
+                        </li>
+                        <li class="py-2">
+                            <a href="{% url 'solar_management' %}"
+                                class="{% if request.path == '/admin-system/solar_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Solar
+                                Management</a>
+                        </li>
+                        <li class="py-2">
+                            <a href="{% url 'upload_history' %}"
+                                class="{% if request.path == '/admin-system/upload_history/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Upload
+                                & History</a>
+                        </li>
+                        <li class="py-2"><a href="{% url 'reports' %}"
+                                class="{% if request.path == '/admin-system/reports/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Reports</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          </div>
 
-          <div class="divider divider-horizontal"></div>
-          <div class="font-bold">Solar Manage</div>
+            <!-- Main Content Area -->
+            <div class="flex-1 flex items-center justify-center">
+                <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl p-4">
+                    <!-- Your content inside the box -->
+                    {% block content %} {% endblock %}
+                </div>
+            </div>
         </div>
-
-        <!-- Page Content -->
-      </div>
-      <div class="flex flex-row h-full">
-        <!-- Sidebar (Left) -->
-        <div class="w-40 lg:w-60 bg-base-100 border-r-2 border-base-900">
-          <div class="mt-4">
-            <ul class="menu">
-              <li class="py-2">
-                <a href="{% url 'dashboard' %}">Dashboard</a>
-              </li>
-              <li class="py-2">
-                <a href="{%url 'users_management' %}">Users Management</a>
-              </li>
-              <li class="py-2">
-                <a href="{% url 'solar_management' %}">Solar Management</a>
-              </li>
-              <li class="py-2">
-                <a href="{% url 'upload_history' %}">Upload & History</a>
-              </li>
-              <li class="py-2"><a href="{% url 'reports' %}">Reports</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="flex-1 flex items-center justify-center">
-          <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl p-4">
-            <!-- Your content inside the box -->
-            {% block content %} {% endblock %}
-          </div>
-        </div>
-      </div>
     </div>
-  </body>
+</body>
+
 </html>
