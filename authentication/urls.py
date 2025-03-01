@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from .views import ThammasatLoginAPI
 from .views import LoginView, login_view, LogoutView, SendOTPView, VerifyOTPView
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -15,4 +16,9 @@ urlpatterns = [
     path("api/send-otp/", SendOTPView.as_view(), name="send-otp"),
     path("api/verify-otp/", VerifyOTPView.as_view(), name="verify-otp"),
     path("verify-account/", views.verify_account, name="verify-account"),
+    path('login/google/', views.google_login, name='google_login'),
+    path('login/google/callback/', views.google_callback, name='google_callback'),
+    path('login/facebook/', views.facebook_login, name='facebook_login'),  
+    path('login/facebook/callback/', views.facebook_callback, name='facebook_callback'),  
+    path("api/login/tu/", ThammasatLoginAPI.as_view(), name="tu-login"),
 ]

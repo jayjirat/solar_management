@@ -12,9 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,19 +41,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "authentication",
     "rest_framework",
-]
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-}
-
-# JWT settings
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-}
+    "rest_framework_simplejwt",
+    "django_extensions",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.facebook",
+    ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -65,6 +58,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware"
 ]
 
 ROOT_URLCONF = "solar.urls"
@@ -151,3 +145,58 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "6510615062@student.tu.ac.th"
 EMAIL_HOST_PASSWORD = os.getenv('MAIL_APP_KEY') # Use app password instead of real password
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+import os
+from dotenv import load_dotenv
+
+# Load .env file
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
+
+# Get values from .env
+FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID")
+FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google':{
+        'APP':{
+            'client_id':GOOGLE_CLIENT_ID,
+            'secret':GOOGLE_CLIENT_SECRET,
+            'key':''
+        }
+    },
+    'facebook':{
+        'APP':{
+            'client_id':FACEBOOK_CLIENT_ID,
+            'secret':FACEBOOK_CLIENT_SECRET,
+        },
+        'AUTH_PARAMS':{
+            'auth_type':'reauthenticate'
+        }
+    }
+}
+
+FACEBOOK_REDIRECT_URI = "https://localhost:8000/login/facebook/callback/"
+
+# EMAIL_BACKEND = 'django.core.mail.backends.EmailBackend'
+
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# ACCOUNT_EMAIL_REQUIRED = True
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+}
