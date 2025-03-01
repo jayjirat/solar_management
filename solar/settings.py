@@ -191,6 +191,8 @@ FACEBOOK_REDIRECT_URI = "https://localhost:8000/login/facebook/callback/"
 # ACCOUNT_AUTHENTICATION_METHOD = 'email'
 # ACCOUNT_EMAIL_REQUIRED = True
 
+TU_CLIENT_SECRET = os.getenv("TU_CLIENT_SECRET")
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",

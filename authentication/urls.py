@@ -1,6 +1,6 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
-from .views import ThammasatLoginAPI
+from .views import ThammasatLoginAPI, tu_login_page
 from .views import LoginView, login_view, LogoutView, SendOTPView, VerifyOTPView
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -21,4 +21,5 @@ urlpatterns = [
     path('login/facebook/', views.facebook_login, name='facebook_login'),  
     path('login/facebook/callback/', views.facebook_callback, name='facebook_callback'),  
     path("api/login/tu/", ThammasatLoginAPI.as_view(), name="tu-login"),
+    path("login/tu/", tu_login_page, name="tu-login-page"),
 ]

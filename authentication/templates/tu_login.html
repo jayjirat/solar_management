@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with Thammasat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Login with Thammasat University API</h2>
+        
+        <form id="tu-login-form">
+            <label for="username" class="block text-gray-700 font-medium">Student ID:</label>
+            <input type="text" id="username" name="username" required
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+        
+            <label for="password" class="block text-gray-700 font-medium">Password:</label>
+            <input type="password" id="password" name="password" required
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+        
+            <button type="submit"
+                class="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition">
+                Login
+            </button>
+        </form>
+        
+        <script>
+            document.getElementById("tu-login-form").addEventListener("submit", function(event) {
+                event.preventDefault(); // Prevent default form submission
+            
+                let username = document.getElementById("username").value;
+                let password = document.getElementById("password").value;
+            
+                fetch("http://127.0.0.1:8000/api/login/tu/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ "username": username, "password": password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.access) {
+                        // ✅ Store the token (optional, if needed for authentication)
+                        localStorage.setItem("access_token", data.access);
+                        localStorage.setItem("refresh_token", data.refresh);
+            
+                        // ✅ Redirect to home page
+                        window.location.href = "/";
+                    } else {
+                        alert("Login failed: " + data.error);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+            </script>
+            
+        
+    </div>
+</body>
+</html>
