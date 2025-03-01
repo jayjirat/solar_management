@@ -31,8 +31,8 @@ def logout_view(request):
 
 @ensure_csrf_cookie
 def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('home')  # Or some other URL
+    # if request.user.is_authenticated:
+    #     return redirect('home')  # Or some other URL
     return render(request, 'login.html')
 
 
@@ -49,7 +49,8 @@ class LoginView(APIView):
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
-                    'username': user.username
+                    'username': user.username,
+                    'role': CustomUser.objects.get(user=user).role
                 })
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

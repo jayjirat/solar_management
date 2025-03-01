@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "authentication",
+    "myadmin",
     "rest_framework",
     "rest_framework_simplejwt",
     "django_extensions",
@@ -56,6 +57,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.facebook",
+    "data_analyst",
+    "drone_controller"
     ]
 
 MIDDLEWARE = [
