@@ -1,76 +1,78 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" data-theme="bumblebee">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="hero bg-base-200 min-h-screen">
-      <div class="hero-content flex-col lg:flex-row-reverse">
-        <img
-          src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-          class="max-w-sm rounded-lg shadow-2xl"
-        />
-        <div>
-          <p id="username-placeholder" class="text-lg"></p>
-          <h1 class="text-5xl font-bold">Box Office News!</h1>
-          <p class="py-6">
-            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
-            a id nisi.
-          </p>
-          <button class="btn btn-primary" id="logout-btn">Logout</button>
-        </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="hero bg-base-200 min-h-screen">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+      <img src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
+        class="max-w-sm rounded-lg shadow-2xl" />
+      <div>
+        <p id="username-placeholder" class="text-lg font-bold"></p>
+        <h1 class="text-5xl font-bold">Welcome to Solar Cell Maintenance System!</h1>
+        <p class="py-6">
+          Thank you for registering! You are currently awaiting approval. A Superadmin needs to assign you a role before
+          you can proceed with further actions.
+        </p>
+
+        <button class="btn btn-primary" id="logout-btn">Logout</button>
       </div>
     </div>
-    <script>
-      // Check if user is authenticated
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        window.location.href = "/login/";
-      }
+  </div>
+  <script>
+    // Check if user is authenticated
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      window.location.href = "/login/";
+    }
 
-      // Display username if available
-      const username = localStorage.getItem("username");
-      if (username) {
-        const usernameElement = document.getElementById("username-placeholder");
-        usernameElement.textContent = `Welcome, ${username}!`;
-      }
+    // Display username if available
+    const username = localStorage.getItem("username");
+    if (username) {
+      const usernameElement = document.getElementById("username-placeholder");
+      usernameElement.textContent = `Welcome, ${username}!`;
+    }
 
-      // Logout
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", function () {
-          const refreshToken = localStorage.getItem("refresh_token");
+    // Logout
+    document
+      .getElementById("logout-btn")
+      .addEventListener("click", function () {
+        const refreshToken = localStorage.getItem("refresh_token");
 
-          // Send request to Django API to blacklist refresh token
-          fetch("/api/logout/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ refresh: refreshToken }),
+        // Send request to Django API to blacklist refresh token
+        fetch("/api/logout/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refresh: refreshToken }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Logout response:", data);
           })
-            .then((response) => response.json())
-            .then((data) => {
-              console.log("Logout response:", data);
-            })
-            .catch((error) => {
-              console.error("Logout API error:", error);
-            })
-            .finally(() => {
-              // Clear tokens from localStorage
-              localStorage.removeItem("access_token");
-              localStorage.removeItem("refresh_token");
-              localStorage.removeItem("username");
+          .catch((error) => {
+            console.error("Logout API error:", error);
+          })
+          .finally(() => {
+            // Clear tokens from localStorage
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
 
-              // Redirect to login page
-              window.location.href = "/login/";
-            });
-        });
-    </script>
-  </body>
+            // Redirect to login page
+            window.location.href = "/login/";
+          });
+      });
+  </script>
+</body>
+
 </html>
