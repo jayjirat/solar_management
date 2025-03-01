@@ -158,26 +158,26 @@ class SocialLoginFacade:
             # Set the backend attribute
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             auth_login(request, user)  # Now this will work
-            # Generate JWT token
-            from rest_framework_simplejwt.tokens import RefreshToken
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
+        # Generate JWT token
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
 
-            # You can still use Django's session auth if needed
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            auth_login(request, user)
+        # You can still use Django's session auth if needed
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        auth_login(request, user)
 
-            # Set JWT as a cookie
-            response = redirect('home')
-            response.set_cookie(
-                'access_token',
-                access_token,
-                httponly=True,  # Prevents JavaScript from reading the cookie
-                secure=True,    # Only sent over HTTPS
-                samesite='Lax'  # Protects against CSRF
-            )
+        # Set JWT as a cookie
+        response = redirect('home')
+        response.set_cookie(
+            'access_token',
+            access_token,
+            httponly=True,  # Prevents JavaScript from reading the cookie
+            secure=True,    # Only sent over HTTPS
+            samesite='Lax'  # Protects against CSRF
+        )
         # Redirect to home page
-            return response
+        return response
 
     # def facebook_login(self, request):
     #     # Facebook OAuth2 endpoint
