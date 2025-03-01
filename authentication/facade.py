@@ -8,6 +8,10 @@ import requests
 from urllib.parse import urlencode
 from django.utils.crypto import get_random_string
 from django.contrib.auth import get_user_model
+import json
+from django.conf import settings
+from django.http import JsonResponse
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class SocialLoginFacade:
     User = get_user_model()
@@ -266,3 +270,91 @@ class SocialLoginFacade:
 
         # Redirect to home page
         return redirect('home')
+    
+    User = get_user_model()
+
+class ThammasatAuthFacade:
+    TU_API_URL = "https://restapi.tu.ac.th/api/v1/auth/Ad/verify"
+    TU_API_TOKEN = settings.TU_CLIENT_SECRET
+
+    @staticmethod
+    def login(request):
+        """Handles login process using TU API."""
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            username = data.get("username")
+            password = data.get("password")
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+
+        if not username or not password:
+            return JsonResponse({"error": "Missing username or password"}, status=400)
+
+        response_data = ThammasatAuthFacade.authenticate(username, password)
+        if response_data:
+            user = ThammasatAuthFacade.process_user_data(username, response_data)
+            if user:
+                return JsonResponse(ThammasatAuthFacade.generate_jwt_tokens(user), status=200)
+
+        return JsonResponse({"error": "Invalid credentials"}, status=400)
+
+    @staticmethod
+    def authenticate(username, password):
+        """Send authentication request to TU API."""
+        headers = {
+            "Content-Type": "application/json",
+            "Application-Key": ThammasatAuthFacade.TU_API_TOKEN
+        }
+        payload = {
+            "UserName": username,
+            "PassWord": password
+        }
+
+        response = requests.post(ThammasatAuthFacade.TU_API_URL, json=payload, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        return None
+
+    @staticmethod
+    def process_user_data(username, response_data):
+        """Create or get user from the TU API response data."""
+        if response_data.get("status") is True:
+            email = response_data.get("email")
+            name = response_data.get("displayname_en")
+            faculty = response_data.get("faculty", response_data.get("organization", ""))
+            department = response_data.get("department", "")
+            year = 67 - int(username[:2]) + 1 if response_data.get("type") == "student" else None
+
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={"email": email, "first_name": name}
+            )
+
+            if created:
+                user.faculty = faculty
+                user.major = department
+                if year:
+                    user.year = year
+                user.save()
+
+            return user
+        return None
+
+    @staticmethod
+    def generate_jwt_tokens(user):
+        """Generate JWT access and refresh tokens for the user."""
+        refresh = RefreshToken.for_user(user)
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "faculty": getattr(user, "faculty", ""),
+                "major": getattr(user, "major", ""),
+                "year": getattr(user, "year", None),
+                "displayname_en": getattr(user, "year", None),
+            }
+        }
