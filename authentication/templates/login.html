@@ -122,9 +122,13 @@
                     window.location.href = "/";
                 } else if (role == 'admin') {
                     window.location.href = "/admin-system/dashboard";
-                } else {
-                    window.location.href = "/";
+                } else if (role == "drone_controller") {
+                    window.location.href = "/drone-controller-system/home/"
                 }
+                else if (role == "data_analyst") {
+                    window.location.href = "/data-analyst-system/home/"
+                }
+
 
             })
             .catch(error => {
