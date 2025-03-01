@@ -120,7 +120,7 @@ class SocialLoginFacade:
             # User exists, set the backend attribute and log them in
             user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
             auth_login(request, user)  # Now this will work
-            # messages.success(request, f"Successfully logged in as {user.username}")
+            
         except User.DoesNotExist:
             # User does not exist, create a new user
             username = email.split('@')[0]
@@ -142,13 +142,11 @@ class SocialLoginFacade:
             # Create custom user with default role
             CustomUser.objects.create(
                 user=user,
-                # role=RoleEnum.DATA_ANALYST.value[0]  # Set default role
             )
             
             # Set the backend attribute and log in the new user
             user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
             auth_login(request, user)  # Now this will work
-            # messages.success(request, f"Account created and logged in as {user.username}")
 
         # Redirect to home page
         return redirect('home')
@@ -238,7 +236,6 @@ class SocialLoginFacade:
             # User exists, log them in
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             auth_login(request, user)
-            # messages.success(request, f"Successfully logged in as {user.username}")
         except User.DoesNotExist:
             # User does not exist, create a new user
             username = email.split('@')[0]
@@ -260,13 +257,11 @@ class SocialLoginFacade:
             # Create custom user with default role
             CustomUser.objects.create(
                 user=user,
-                # role=RoleEnum.DATA_ANALYST.value[0]  # Set default role
             )
             
             # Log in the new user
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             auth_login(request, user)
-            # messages.success(request, f"Account created and logged in as {user.username}")
 
         # Redirect to home page
         return redirect('home')

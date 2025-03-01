@@ -171,8 +171,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-FACEBOOK_REDIRECT_URI = "http://localhost:8000/login/facebook/callback/"
-
+FACEBOOK_REDIRECT_URI = "https://localhost:8000/login/facebook/callback/"
 
 # EMAIL_BACKEND = 'django.core.mail.backends.EmailBackend'
 
