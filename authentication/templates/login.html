@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="bumblebee">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+
+    <title>Login</title>
+  </head>
+  <div class="min-h-screen flex">
+    <!-- Left Side: Background Color with Login Card -->
+    <div class="flex-1 bg-[#FFF4E6] flex items-center justify-center p-8">
+        <div class="card w-full max-w-md bg-white shadow-xl">
+            <div class="card-body">
+                <h1 class="text-2xl font-bold text-center mb-1">Solar Cell Maintenance System</h1>
+                <p class="text-center text-gray-600 mb-3">Effortless maintenance and smart monitoring</p>
+                <p class="text-center font-bold">SIGN IN</p>
+                <!-- Login Form -->
+                <form id="login-form">
+                    <div id="error-message" class="hidden alert alert-error">
+                        <p id="error-text"></p>
+                    </div>
+                    <!-- Username Field -->
+                    <div class="form-control">
+                        <label class="label" for="username">
+                            <span class="label-text">Email</span>
+                        </label>
+                        <input type="text" name="username" placeholder="Username" class="input input-bordered" required />
+                    </div>
+                    <!-- Password Field -->
+                    <div class="form-control mt-4">
+                        <label class="label" for="password">
+                            <span class="label-text">Password</span>
+                        </label>
+                        <input type="password" name="password" placeholder="Password" class="input input-bordered" required />
+                    </div>
+                    <!-- Submit Button -->
+                    <div class="form-control mt-6">
+                        <button type="submit" class="btn bg-[#FF5C00] hover:bg-[#E65300]">SIGN IN</button>
+                    </div>
+                    <!-- Divider -->
+                    <div class="divider my-6">OR USE</div>
+                    <div class="text-center">
+                        <!-- Facebook -->
+                        <button
+                        type="button"
+                        data-twe-ripple-init
+                        data-twe-ripple-color="light"
+                        class="mb-2 inline-block rounded bg-[#1877f2] px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg">
+                        <span class="[&>svg]:h-4 [&>svg]:w-4">
+                            <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 320 512">
+                            <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc. -->
+                            <path
+                                d="M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z" />
+                            </svg>
+                        </span>
+                        </button>
+                        <!-- Google -->
+                        <button
+                        type="button"
+                        data-twe-ripple-init
+                        data-twe-ripple-color="light"
+                        class="mb-2 inline-block rounded bg-[#ea4335] px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg">
+                        <span class="[&>svg]:h-4 [&>svg]:w-4">
+                            <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 488 512">
+                            <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc. -->
+                            <path
+                                d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
+                            </svg>
+                        </span>
+                        </button>
+                        </div>
+                        <!-- Sign Up Link -->
+                        <div class="text-center">
+                            <p class="text-gray-600 mb-5">Don't have an account?</p>
+                            <a href="#" class="btn btn-outline btn-secondary">SIGN UP</a>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Image -->
+    <div class="flex-1 bg-cover bg-center" style="background-image: url('{% static 'solar.jpg' %}');">
+        <!-- You can replace the image URL with your own -->
+    </div>
+</div>
+<script>
+    // Login Functionality
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const username = this.elements.username.value;
+        const password = this.elements.password.value;
+        const errorDiv = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        
+        fetch('/api/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Store tokens in localStorage
+            localStorage.setItem('access_token', data.access);
+            localStorage.setItem('refresh_token', data.refresh);
+            localStorage.setItem('username', data.username);
+            // Redirect to dashboard
+            window.location.href = "/";
+        })
+        .catch(error => {
+            errorText.textContent = 'Invalid username or password';
+            errorDiv.classList.remove('hidden');
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,17 +1,66 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.response import Response
 from .models import CustomUser, EmailOTP
-from .serializer import UserSerializer, SendOTPSerializer, VerifyOTPSerializer
+from .serializers import UserSerializer, SendOTPSerializer, VerifyOTPSerializer, LoginSerializer
 from rest_framework.decorators import api_view, APIView
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.core.mail import send_mail
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth import logout
 
 
 def home(request):
     return render(request, 'home.html')
+    return render(request, 'home.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+@ensure_csrf_cookie
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')  # Or some other URL
+    return render(request, 'login.html')
+
+
+class LoginView(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+            user = authenticate(username=username, password=password)
+
+            if user:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'username': user.username
+                })
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()  # Blacklist the refresh token
+            return Response({"message": "Logout successful"}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
 def signup(request):
     return render(request, 'signup.html')
