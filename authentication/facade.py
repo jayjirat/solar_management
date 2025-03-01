@@ -155,121 +155,121 @@ class SocialLoginFacade:
         # Redirect to home page
         return redirect('home')
 
-    def facebook_login(self, request):
-        # Facebook OAuth2 endpoint
-        authorization_endpoint = "https://www.facebook.com/v9.0/dialog/oauth"
+    # def facebook_login(self, request):
+    #     # Facebook OAuth2 endpoint
+    #     authorization_endpoint = "https://www.facebook.com/v9.0/dialog/oauth"
         
-        # Get client ID from settings
-        client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
+    #     # Get client ID from settings
+    #     client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
         
-        # Prepare callback URL
-        redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
+    #     # Prepare callback URL
+    #     redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
         
-        # Prepare parameters for authorization request
-        params = {
-            'client_id': client_id,
-            'redirect_uri': redirect_uri,
-            'response_type': 'code',
-            'scope': 'email',
-        }
+    #     # Prepare parameters for authorization request
+    #     params = {
+    #         'client_id': client_id,
+    #         'redirect_uri': redirect_uri,
+    #         'response_type': 'code',
+    #         'scope': 'email',
+    #     }
         
-        # Build authorization URL
-        authorization_url = f"{authorization_endpoint}?{urlencode(params)}"
+    #     # Build authorization URL
+    #     authorization_url = f"{authorization_endpoint}?{urlencode(params)}"
         
-        # Redirect user to authorization URL
-        return redirect(authorization_url)
+    #     # Redirect user to authorization URL
+    #     return redirect(authorization_url)
 
-    def facebook_callback(self, request):
-        # Check if there's an error parameter
-        if 'error' in request.GET:
-            messages.error(request, f"Facebook authentication error: {request.GET['error']}")
-            return redirect('login')
+    # def facebook_callback(self, request):
+    #     # Check if there's an error parameter
+    #     if 'error' in request.GET:
+    #         messages.error(request, f"Facebook authentication error: {request.GET['error']}")
+    #         return redirect('login')
         
-        # Get authorization code from request
-        code = request.GET.get('code')
+    #     # Get authorization code from request
+    #     code = request.GET.get('code')
         
-        if not code:
-            messages.error(request, "No authorization code received from Facebook.")
-            return redirect('login')
+    #     if not code:
+    #         messages.error(request, "No authorization code received from Facebook.")
+    #         return redirect('login')
         
-        # Exchange code for access token
-        token_endpoint = "https://graph.facebook.com/v9.0/oauth/access_token"
-        client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
-        client_secret = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['secret']
-        redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
+    #     # Exchange code for access token
+    #     token_endpoint = "https://graph.facebook.com/v9.0/oauth/access_token"
+    #     client_id = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id']
+    #     client_secret = settings.SOCIALACCOUNT_PROVIDERS['facebook']['APP']['secret']
+    #     redirect_uri = request.build_absolute_uri('/login/facebook/callback/')
         
-        token_data = {
-            'client_id': client_id,
-            'redirect_uri': redirect_uri,
-            'client_secret': client_secret,
-            'code': code,
-        }
+    #     token_data = {
+    #         'client_id': client_id,
+    #         'redirect_uri': redirect_uri,
+    #         'client_secret': client_secret,
+    #         'code': code,
+    #     }
         
-        # Get access token
-        token_response = requests.get(token_endpoint, params=token_data)
+    #     # Get access token
+    #     token_response = requests.get(token_endpoint, params=token_data)
         
-        if token_response.status_code != 200:
-            messages.error(request, "Failed to obtain access token from Facebook.")
-            return redirect('login')
+    #     if token_response.status_code != 200:
+    #         messages.error(request, "Failed to obtain access token from Facebook.")
+    #         return redirect('login')
         
-        token_json = token_response.json()
-        access_token = token_json.get('access_token')
+    #     token_json = token_response.json()
+    #     access_token = token_json.get('access_token')
         
-        # Get user info using access token
-        userinfo_endpoint = "https://graph.facebook.com/me?fields=id,name,email"
-        headers = {'Authorization': f'Bearer {access_token}'}
+    #     # Get user info using access token
+    #     userinfo_endpoint = "https://graph.facebook.com/me?fields=id,name,email"
+    #     headers = {'Authorization': f'Bearer {access_token}'}
         
-        userinfo_response = requests.get(userinfo_endpoint, headers=headers)
+    #     userinfo_response = requests.get(userinfo_endpoint, headers=headers)
         
-        if userinfo_response.status_code != 200:
-            messages.error(request, "Failed to get user info from Facebook.")
-            return redirect('login')
+    #     if userinfo_response.status_code != 200:
+    #         messages.error(request, "Failed to get user info from Facebook.")
+    #         return redirect('login')
         
-        userinfo = userinfo_response.json()
+    #     userinfo = userinfo_response.json()
         
-        # Extract user data
-        email = userinfo.get('email')
+    #     # Extract user data
+    #     email = userinfo.get('email')
         
-        if not email:
-            messages.error(request, "Facebook did not provide an email address.")
-            return redirect('login')
+    #     if not email:
+    #         messages.error(request, "Facebook did not provide an email address.")
+    #         return redirect('login')
         
-        user = User.objects.filter(email=email).first()
-        # Check if user exists
-        if user:
-            # User exists, set the backend attribute and log them in
-            user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
-            auth_login(request, user)  # Now this will work
+    #     user = User.objects.filter(email=email).first()
+    #     # Check if user exists
+    #     if user:
+    #         # User exists, set the backend attribute and log them in
+    #         user.backend = 'django.contrib.auth.backends.ModelBackend'  # Set the backend attribute
+    #         auth_login(request, user)  # Now this will work
             
-        # User does not exist, create a new user
-        else: 
-            username = email
+    #     # User does not exist, create a new user
+    #     else: 
+    #         username = email
             
-            # Check if username already exists and modify if needed
-            base_username = username
-            count = 1
-            while User.objects.filter(username=username).exists():
-                username = f"{base_username}{count}"
-                count += 1
+    #         # Check if username already exists and modify if needed
+    #         base_username = username
+    #         count = 1
+    #         while User.objects.filter(username=username).exists():
+    #             username = f"{base_username}{count}"
+    #             count += 1
             
-            # Create new user
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=get_random_string(8)  # Generate a random password
-            )
+    #         # Create new user
+    #         user = User.objects.create_user(
+    #             username=username,
+    #             email=email,
+    #             password=get_random_string(8)  # Generate a random password
+    #         )
             
-            # Create custom user with default role
-            CustomUser.objects.create(
-                user=user,
-            )
+    #         # Create custom user with default role
+    #         CustomUser.objects.create(
+    #             user=user,
+    #         )
             
-            # Log in the new user
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            auth_login(request, user)
+    #         # Log in the new user
+    #         user.backend = 'django.contrib.auth.backends.ModelBackend'
+    #         auth_login(request, user)
 
-        # Redirect to home page
-        return redirect('home')
+    #     # Redirect to home page
+    #     return redirect('home')
     
     User = get_user_model()
 

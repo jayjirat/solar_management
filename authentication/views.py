@@ -161,13 +161,13 @@ def google_callback(request):
     facade = SocialLoginFacade('google')
     return facade.callback(request)
 
-def facebook_login(request):
-    facade = SocialLoginFacade('facebook')
-    return facade.login(request)
+# def facebook_login(request):
+#     facade = SocialLoginFacade('facebook')
+#     return facade.login(request)
 
-def facebook_callback(request):
-    facade = SocialLoginFacade('facebook')
-    return facade.callback(request)
+# def facebook_callback(request):
+#     facade = SocialLoginFacade('facebook')
+#     return facade.callback(request)
 
 def tu_login_page(request):
     return render(request, 'tu_login.html')
