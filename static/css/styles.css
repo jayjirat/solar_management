@@ -1705,11 +1705,6 @@ html {
   border-width: 1px;
 }
 
-.bg-\[\#1877f2\] {
-  --tw-bg-opacity: 1;
-  background-color: rgb(24 119 242 / var(--tw-bg-opacity, 1));
-}
-
 .bg-\[\#FF5C00\] {
   --tw-bg-opacity: 1;
   background-color: rgb(255 92 0 / var(--tw-bg-opacity, 1));
