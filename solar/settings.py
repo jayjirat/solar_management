@@ -42,7 +42,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "django_extensions",
-]
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.facebook",
+    ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -52,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware"
 ]
 
 ROOT_URLCONF = "solar.urls"
@@ -131,6 +137,50 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+import os
+from dotenv import load_dotenv
+
+# Load .env file
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
+
+# Get values from .env
+FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID")
+FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google':{
+        'APP':{
+            'client_id':GOOGLE_CLIENT_ID,
+            'secret':GOOGLE_CLIENT_SECRET,
+            'key':''
+        }
+    },
+    'facebook':{
+        'APP':{
+            'client_id':FACEBOOK_CLIENT_ID,
+            'secret':FACEBOOK_CLIENT_SECRET,
+        },
+        'AUTH_PARAMS':{
+            'auth_type':'reauthenticate'
+        }
+    }
+}
+
+FACEBOOK_REDIRECT_URI = "https://localhost:8000/login/facebook/callback/"
+
+# EMAIL_BACKEND = 'django.core.mail.backends.EmailBackend'
+
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# ACCOUNT_EMAIL_REQUIRED = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
