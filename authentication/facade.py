@@ -21,16 +21,16 @@ class SocialLoginFacade:
     def login(self, request):
         if self.provider == 'google':
             return self.google_login(request)
-        elif self.provider == 'facebook':
-            return self.facebook_login(request)
+        # elif self.provider == 'facebook':
+        #     return self.facebook_login(request)
         else:
             raise ValueError("Unsupported provider")
 
     def callback(self, request):
         if self.provider == 'google':
             return self.google_callback(request)
-        elif self.provider == 'facebook':
-            return self.facebook_callback(request)
+        # elif self.provider == 'facebook':
+        #     return self.facebook_callback(request)
         else:
             raise ValueError("Unsupported provider")
 
