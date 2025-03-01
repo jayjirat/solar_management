@@ -22,3 +22,6 @@ sqlparse==0.5.3
 typing_extensions==4.12.2
 tzdata==2025.1
 urllib3==2.3.0
+django-cors-headers==4.0.0
+djangorestframework-simplejwt[crypto]
+django-extensions==3.2.3
