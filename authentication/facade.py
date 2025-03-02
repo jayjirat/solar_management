@@ -168,7 +168,7 @@ class SocialLoginFacade:
         auth_login(request, user)
 
         # Set JWT as a cookie
-        response = redirect('home')
+        response = redirect('/')
         response.set_cookie(
             'access_token',
             access_token,
