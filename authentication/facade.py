@@ -124,8 +124,10 @@ class SocialLoginFacade:
             return redirect('login')
 
         user = User.objects.filter(email=email).first()
+        myuser = None
         # Check if user exists
         if user:
+            myuser = CustomUser.objects.get(user=user)
             # User exists, set the backend attribute and log them in
             # Set the backend attribute
             user.backend = 'django.contrib.auth.backends.ModelBackend'
@@ -166,16 +168,53 @@ class SocialLoginFacade:
         # You can still use Django's session auth if needed
         user.backend = 'django.contrib.auth.backends.ModelBackend'
         auth_login(request, user)
+        redirect_url = None
+        user_role = myuser.role or "user"
 
         # Set JWT as a cookie
+<<<<<<< HEAD
         response = redirect('/')
+=======
+        if(user_role == "admin"):
+            redirect_url = "/admin-system/dashboard"
+        elif(user_role == "drone_controller"):
+            redirect_url = "/drone-controller-system/home/"
+        elif(user_role == "data_analyst"):
+            redirect_url = "/data-analyst-system/home/"
+        else:
+            redirect_url = "/"
+
+
+        response = redirect(redirect_url)
+>>>>>>> 4da4bd58c7a13ef9f24b9f3983d9b473400c7b73
         response.set_cookie(
-            'access_token',
-            access_token,
-            httponly=True,  # Prevents JavaScript from reading the cookie
-            secure=True,    # Only sent over HTTPS
-            samesite='Lax'  # Protects against CSRF
+            'access_token', access_token,
+            httponly=False,
+            secure=True,
+            samesite='Lax'
         )
+
+        response.set_cookie(
+            'refresh_token', str(refresh),
+            httponly=True,
+            secure=True,
+            samesite='Lax'
+        )
+
+        response.set_cookie(
+            'username', user.username,
+            httponly=True,
+            secure=True,
+            samesite='Lax'
+        )
+
+        response.set_cookie(
+            'role', myuser.role,
+            httponly=True,
+            secure=True,
+            samesite='Lax'
+        )
+
         # Redirect to home page
         return response
 
