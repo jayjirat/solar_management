@@ -1,79 +1,105 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="bumblebee">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login with Thammasat</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 </head>
 
-<body class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Login with Thammasat University API</h2>
+<body>
+<div class="min-h-screen flex">
+    <!-- Left Side: Background Color with Login Card -->
+    <div class="flex-1 bg-[#FFF4E6] flex items-center justify-center p-8">
+        <div class="card w-full max-w-md bg-white shadow-xl">
+            <div class="card-body">
+                <h1 class="text-2xl font-bold text-center mb-1">Solar Cell Maintenance System</h1>
+                <p class="text-center text-gray-600 mb-3">Effortless maintenance and smart monitoring</p>
+                <p class="text-center font-bold">LOGIN WITH TU</p>
 
-        <form id="tu-login-form">
-            <label for="username" class="block text-gray-700 font-medium">Student ID:</label>
-            <input type="text" id="username" name="username" required
-                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
-
-            <label for="password" class="block text-gray-700 font-medium">Password:</label>
-            <input type="password" id="password" name="password" required
-                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
-
-            <button type="submit"
-                class="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition">
-                Login
-            </button>
-        </form>
-
-        <script>
-            document.getElementById("tu-login-form").addEventListener("submit", function (event) {
-                event.preventDefault(); // Prevent default form submission
-
-                let username = document.getElementById("username").value;
-                let password = document.getElementById("password").value;
-
-                fetch("http://127.0.0.1:8000/api/login/tu/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify({ "username": username, "password": password })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-
-                        if (data.access) {
-                            // ✅ Store the token (optional, if needed for authentication)
-                            role = data.role ?? "user"
-                            // Store tokens in localStorage
-                            localStorage.setItem('access_token', data.access);
-                            localStorage.setItem('refresh_token', data.refresh);
-                            localStorage.setItem('username', data.username);
-                            localStorage.setItem('role', data.role ?? "user");
-                            // Redirect to dashboard
-                            if (role == 'user') {
-                                window.location.href = "/";
-                            } else if (role == 'admin') {
-                                window.location.href = "/admin-system/dashboard";
-                            } else if (role == "drone_controller") {
-                                window.location.href = "/drone-controller-system/home/"
-                            }
-                            else if (role == "data_analyst") {
-                                window.location.href = "/data-analyst-system/home/"
-                            }
-                        } else {
-                            alert("Login failed: " + data.error);
-                        }
-                    })
-                    .catch(error => console.error("Error:", error));
-            });
-        </script>
-
-
+                <!-- Login Form -->
+                <form id="tu-login-form">
+                    <div id="error-message" class="hidden alert alert-error">
+                        <p id="error-text"></p>
+                    </div>
+                    
+                    <!-- Username Field -->
+                    <div class="form-control">
+                        <label class="label" for="username">
+                            <span class="label-text">Student ID</span>
+                        </label>
+                        <input type="text" id="username" name="username" placeholder="Student ID" class="input input-bordered" required />
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="form-control mt-4">
+                        <label class="label" for="password">
+                            <span class="label-text">Password</span>
+                        </label>
+                        <input type="password" id="password" name="password" placeholder="Password" class="input input-bordered" required />
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="form-control mt-6">
+                        <button type="submit" class="btn bg-[#FF5C00] hover:bg-[#E65300]">LOGIN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</body>
 
+    <!-- Right Side: Image -->
+    <div class="flex-1 bg-cover bg-center" style="background-image: url('{% static 'solar.jpg' %}');"></div>
+</div>
+
+<script>
+    document.getElementById("tu-login-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        let errorDiv = document.getElementById('error-message');
+        let errorText = document.getElementById('error-text');
+
+        fetch("/api/login/tu/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ "username": username, "password": password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.access) {
+                localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', data.refresh);
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('role', data.role ?? "user");
+
+                let role = data.role ?? "user";
+                if (role == 'user') {
+                    window.location.href = "/";
+                } else if (role == 'admin') {
+                    window.location.href = "/admin-system/dashboard";
+                } else if (role == "drone_controller") {
+                    window.location.href = "/drone-controller-system/home/";
+                } else if (role == "data_analyst") {
+                    window.location.href = "/data-analyst-system/home/";
+                }
+            } else {
+                errorText.textContent = 'Invalid username or password';
+                errorDiv.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            errorText.textContent = "Error logging in";
+            errorDiv.classList.remove('hidden');
+        });
+    });
+</script>
+
+</body>
 </html>
