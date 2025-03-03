@@ -15,3 +15,5 @@
 npm run build
 python manage.py runserver
 ```
+https://drive.google.com/file/d/1mwjbE-rYilgV_9jW1psZDKip9QBlMax8/view?usp=sharing
+https://docs.google.com/document/d/10sl4pJg7E-A_Jrtbk81_I1E22hy3jc4dloV7p7bzmYk/edit?usp=sharing
