@@ -28,8 +28,11 @@
   </div>
   <script>
     // Check if user is authenticated
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    const tokenLocal = localStorage.getItem("access_token");
+    const tokenCookie = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+    const token = tokenCookie ? tokenCookie.split('=')[1] : null;
+
+    if (!tokenLocal && !token) {
       window.location.href = "/login/";
     }
 
@@ -67,6 +70,9 @@
             localStorage.removeItem("refresh_token");
             localStorage.removeItem("username");
             localStorage.removeItem("role");
+
+            document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; samesite=Lax";
+
 
             // Redirect to login page
             window.location.href = "/login/";
