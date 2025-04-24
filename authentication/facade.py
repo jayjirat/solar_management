@@ -172,9 +172,6 @@ class SocialLoginFacade:
         user_role = myuser.role or "user"
 
         # Set JWT as a cookie
-<<<<<<< HEAD
-        response = redirect('/')
-=======
         if(user_role == "admin"):
             redirect_url = "/admin-system/dashboard"
         elif(user_role == "drone_controller"):
@@ -186,7 +183,6 @@ class SocialLoginFacade:
 
 
         response = redirect(redirect_url)
->>>>>>> 4da4bd58c7a13ef9f24b9f3983d9b473400c7b73
         response.set_cookie(
             'access_token', access_token,
             httponly=False,
