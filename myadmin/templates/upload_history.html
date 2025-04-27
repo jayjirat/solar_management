@@ -1,4 +1,40 @@
-{% extends 'base.html' %} {% block title %}Admin - Upload & History{% endblock%}
+{% extends 'base.html' %} {% load static %}{% block title %}Admin - Upload & History{% endblock%}
 {% block heading %}Upload & History{% endblock %} {% block content %}
-<h1>Upload & History</h1>
+<div class="grid grid-cols-2 gap-6 h-full">
+    <div class=>
+        <div class="text-sm font-bold pb-2 flex justify-between w-full">
+            <div>PowerPlant1 - 20 FEB 2025</div>
+            <button class="" style="color: #FF5C00;">Delete</button>
+        </div>
+        <img src="{% static 'infPP.png' %}" class="w-full h-auto max-h-64 object-cover rounded-lg"
+            alt="Power Plant Image" />
+    </div>
+    <div class=>
+        <div class="text-sm font-bold pb-2 flex justify-between w-full">
+            <div>PowerPlant1 - 21 FEB 2025</div>
+            <button class="" style="color: #FF5C00;">Delete</button>
+        </div>
+        <img src="{% static 'infPP.png' %}" class="w-full h-auto max-h-64 object-cover rounded-lg"
+            alt="Power Plant Image" />
+    </div>
+    <div class=>
+        <div class="text-sm font-bold pb-2 flex justify-between w-full">
+            <div>PowerPlant1 - 22 FEB 2025</div>
+            <button class="" style="color: #FF5C00;">Delete</button>
+        </div>
+        <img src="{% static 'infPP.png' %}" class="w-full h-auto max-h-64 object-cover rounded-lg"
+            alt="Power Plant Image" />
+    </div>
+    <div class=>
+        <div class="text-sm font-bold pb-2 flex justify-between w-full">
+            <div>PowerPlant1 - 23 FEB 2025</div>
+            <button class="" style="color: #FF5C00;">Delete</button>
+        </div>
+        <img src="{% static 'infPP.png' %}" class="w-full h-auto max-h-64 object-cover rounded-lg"
+            alt="Power Plant Image" />
+    </div>
+</div>
+
+
+
 {% endblock%}
