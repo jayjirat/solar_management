@@ -8,4 +8,5 @@ urlpatterns = [
     path('solar_management/', views.solar, name='solar_management'),
     path('upload_history/', views.upload, name='upload_history'),
     path('reports/', views.reports, name='reports'),
+    path('profile/', views.profile, name='profile'),
 ]

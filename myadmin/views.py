@@ -15,3 +15,6 @@ def upload(request):
 
 def reports(request):
     return render(request, 'reports.html')
+
+def profile(request):
+    return render(request, 'profile.html')
