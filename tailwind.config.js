@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "./templates/**/*.{html,js}",
     "./authentication/templates/**/*.{html,js}",
+    "./myadmin/templates/**/*.{html,js}",
   ],
   plugins: [require("daisyui")],
   daisyui: {

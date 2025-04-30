@@ -173,11 +173,11 @@ class SocialLoginFacade:
 
         # Set JWT as a cookie
         if(user_role == "admin"):
-            redirect_url = "/admin-system/dashboard"
+            redirect_url = "/solar-system/dashboard"
         elif(user_role == "drone_controller"):
-            redirect_url = "/drone-controller-system/home/"
+            redirect_url = "/solar-system/upload_history"
         elif(user_role == "data_analyst"):
-            redirect_url = "/data-analyst-system/home/"
+            redirect_url = "/solar-system/reports"
         else:
             redirect_url = "/"
 
