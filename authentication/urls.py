@@ -4,8 +4,6 @@ from .views import ThammasatLoginAPI, tu_login_page
 from .views import LoginView, login_view, LogoutView, SendOTPView, VerifyOTPView
 from rest_framework_simplejwt.views import TokenRefreshView
 from myadmin.views import dashboard
-from drone_controller.views import home as drone_home
-from data_analyst.views import home as data_home
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -25,7 +23,5 @@ urlpatterns = [
     # path('login/facebook/callback/', views.facebook_callback, name='facebook_callback'),  
     path("api/login/tu/", ThammasatLoginAPI.as_view(), name="tu-login"),
     path("login/tu/", tu_login_page, name="tu-login-page"),
-    path("admin-system/dashboard",dashboard,name="admin-dashboard"),
-    path("drone-controller-system/home/",drone_home,name="drone_home"),
-    path("data-analyst-system/home/",data_home,name="data_home")
+    path("solar-system/dashboard",dashboard,name="solar-dashboard"),
 ]

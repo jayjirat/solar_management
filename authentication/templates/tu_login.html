@@ -83,11 +83,11 @@
                 if (role == 'user') {
                     window.location.href = "/";
                 } else if (role == 'admin') {
-                    window.location.href = "/admin-system/dashboard";
+                    window.location.href = "/solar-system/dashboard";
                 } else if (role == "drone_controller") {
-                    window.location.href = "/drone-controller-system/home/";
+                    window.location.href = "/solar-system/upload_history";
                 } else if (role == "data_analyst") {
-                    window.location.href = "/data-analyst-system/home/";
+                    window.location.href = "/solar-system/reports";
                 }
             } else {
                 errorText.textContent = 'Invalid username or password';

@@ -47,25 +47,25 @@
                     <ul class="menu">
                         <li class="py-2 {% block nav1 %}{% endblock %}">
                             <a href="{% url 'dashboard' %}"
-                                class="{% if request.path == '/admin-system/dashboard/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Dashboard</a>
+                                class="{% if request.path == '/solar-system/dashboard/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Dashboard</a>
                         </li>
                         <li class="py-2">
                             <a href="{%url 'users_management' %}"
-                                class="{% if request.path == '/admin-system/users_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Users
+                                class="{% if request.path == '/solar-system/users_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Users
                                 Management</a>
                         </li>
                         <li class="py-2">
                             <a href="{% url 'solar_management' %}"
-                                class="{% if request.path == '/admin-system/solar_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Solar
+                                class="{% if request.path == '/solar-system/solar_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Solar
                                 Management</a>
                         </li>
                         <li class="py-2">
                             <a href="{% url 'upload_history' %}"
-                                class="{% if request.path == '/admin-system/upload_history/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Upload
+                                class="{% if request.path == '/solar-system/upload_history/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Upload
                                 & History</a>
                         </li>
                         <li class="py-2"><a href="{% url 'reports' %}"
-                                class="{% if request.path == '/admin-system/reports/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Reports</a>
+                                class="{% if request.path == '/solar-system/reports/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">Reports</a>
                         </li>
                     </ul>
                 </div>
@@ -73,7 +73,7 @@
 
             <!-- Main Content Area -->
             <div class="flex-1 flex items-center justify-center">
-                <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl p-4">
+                <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl">
                     <!-- Your content inside the box -->
                     {% block content %} {% endblock %}
                 </div>
