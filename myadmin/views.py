@@ -22,6 +22,9 @@ def upload(request):
 def reports(request):
     return render(request, 'reports.html')
 
+def profile(request):
+    return render(request, 'profile.html')
+
 
 def create_power_plant(request):
     return render(request, 'create_power_plant.html')

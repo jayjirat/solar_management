@@ -3,36 +3,39 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=U, initial-scale=1.0" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@3.5.0/dist/full.css" rel="stylesheet">
-  <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-  <title>{% block title %}{% endblock %}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Add Tailwind and DaisyUI via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.5.0/dist/full.css" rel="stylesheet">
+    <!-- Your custom CSS -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <title>{% block title %}{% endblock %}</title>
 </head>
 
 <!-- Rest of your base.html remains the same -->
 
 <body>
-  <div class="flex flex-col h-screen">
-    <!-- Main Content (Navbar + Content) -->
-    <div>
-      <!-- Navbar (Full Width) -->
-      <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
-        <div class="flex items-center">
-          <!-- Profile image - making it round/circle -->
-          <div class="w-10 h-10 rounded-full overflow-hidden">
-            <img alt="Profile picture" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              class="w-full h-full object-cover" />
-          </div>
-
-          <div class="pl-4">
-            <div class="flex flex-col">
-              <div class="text-lg font-bold">PengPeng</div>
-              <div class="text-xs text-gray-500">Admin</div>
-            </div>
-          </div>
-        </div>
+    <div class="flex flex-col h-screen">
+        <!-- Main Content (Navbar + Content) -->
+        <div>
+            <!-- Navbar (Full Width) -->
+            <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
+                <a href="{% url 'profile' %}">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                        <div class="w-10 rounded-full">
+                            <img alt="Tailwind CSS Navbar component"
+                                src="../../static/Profile.png" />
+                        </div>
+                    </div>
+                    <div class="pl-4">
+                        <div class="flex flex-col">
+                            <div class="text-lg font-bold {% if request.path == '/admin-system/profile/' %} text-orange-500 font-bold{% endif %}">PengPeng</div>
+                            <div class="text-xs text-gray-900">Admin</div>
+                        </div>
+                    </div>
+                </a>
 
         <div class="divider divider-horizontal"></div>
         <div class="flex flex-row justify-between w-full">
@@ -112,15 +115,16 @@
       </div>
 
 
-      <!-- Main Content Area -->
-      <div class="flex-1 flex items-center justify-center">
-        <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl">
-          <!-- Your content inside the box -->
-          {% block content %} {% endblock %}
+            <!-- Main Content Area -->
+            <div class="flex-1 {% block main_content_class %}flex items-center justify-center{% endblock %}">
+                {% block outer_content %}
+                <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl">
+                    {% block content %}{% endblock %}
+                </div>
+                {% endblock %}
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </body>
 
 <script>
