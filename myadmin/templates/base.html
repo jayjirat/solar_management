@@ -3,39 +3,32 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Add Tailwind and DaisyUI via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.5.0/dist/full.css" rel="stylesheet">
-    <!-- Your custom CSS -->
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-    <title>{% block title %}{% endblock %}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=U, initial-scale=1.0" />
+  <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+  <title>{% block title %}{% endblock %}</title>
 </head>
 
 <!-- Rest of your base.html remains the same -->
 
 <body>
-    <div class="flex flex-col h-screen">
-        <!-- Main Content (Navbar + Content) -->
-        <div>
-            <!-- Navbar (Full Width) -->
-            <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
-                <a href="{% url 'profile' %}">
-                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                        <div class="w-10 rounded-full">
-                            <img alt="Tailwind CSS Navbar component"
-                                src="../../static/Profile.png" />
-                        </div>
-                    </div>
-                    <div class="pl-4">
-                        <div class="flex flex-col">
-                            <div class="text-lg font-bold {% if request.path == '/admin-system/profile/' %} text-orange-500 font-bold{% endif %}">PengPeng</div>
-                            <div class="text-xs text-gray-900">Admin</div>
-                        </div>
-                    </div>
-                </a>
+  <div class="flex flex-col h-screen">
+    <!-- Main Content (Navbar + Content) -->
+    <div>
+      <!-- Navbar (Full Width) -->
+      <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+          <div class="w-10 rounded-full">
+            <img alt="Tailwind CSS Navbar component"
+              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+          </div>
+        </div>
+        <div class="pl-4">
+          <div class="flex flex-col">
+            <div class="text-lg font-bold">PengPeng</div>
+            <div class="text-xs text-gray-900">Admin</div>
+          </div>
+        </div>
 
         <div class="divider divider-horizontal"></div>
         <div class="flex flex-row justify-between w-full">
@@ -54,8 +47,7 @@
         <div class="mt-4">
           <ul class="menu">
             <li class="py-2">
-              <a href="{% url 'dashboard' %}" class="flex items-center" {% if request.path=='/solar-system/dashboard/'
-                %} style="color: #f97316; font-weight: bold; background-color: #fff7ed;" {% endif %}>
+              <a href="{% url 'dashboard' %}" class="flex items-center" {% if request.path=='/solar-system/dashboard/'%} style="color: #f97316; font-weight: bold; background-color: #fff7ed;" {% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
@@ -115,16 +107,15 @@
       </div>
 
 
-            <!-- Main Content Area -->
-            <div class="flex-1 {% block main_content_class %}flex items-center justify-center{% endblock %}">
-                {% block outer_content %}
-                <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl">
-                    {% block content %}{% endblock %}
-                </div>
-                {% endblock %}
-            </div>
+      <!-- Main Content Area -->
+      <div class="flex-1 flex items-center justify-center">
+        <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl p-4">
+          <!-- Your content inside the box -->
+          {% block content %} {% endblock %}
         </div>
+      </div>
     </div>
+  </div>
 </body>
 
 <script>
