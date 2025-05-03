@@ -400,7 +400,7 @@ class ThammasatAuthFacade:
                 1 if response_data.get("type") == "student" else None
 
             user, created = User.objects.get_or_create(
-                username=username,
+                username=name,
                 defaults={"email": email, "first_name": name}
             )
 
@@ -429,6 +429,14 @@ class ThammasatAuthFacade:
     def generate_jwt_tokens(user):
         """Generate JWT access and refresh tokens for the user."""
         refresh = RefreshToken.for_user(user)
+        role = "user"  
+        try:
+            custom_user = CustomUser.objects.get(user=user)
+            if hasattr(custom_user, 'role'):
+                role = custom_user.role
+        except (CustomUser.DoesNotExist, AttributeError):
+            pass  
+            
         return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
@@ -439,6 +447,7 @@ class ThammasatAuthFacade:
                 "faculty": getattr(user, "faculty", ""),
                 "major": getattr(user, "major", ""),
                 "year": getattr(user, "year", None),
-                "displayname_en": getattr(user, "year", None),
+                "displayname_en": getattr(user, "first_name", ""),
+                "role": role 
             }
         }

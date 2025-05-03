@@ -25,33 +25,24 @@ def reports(request):
     return render(request, 'reports.html')
 
 def profile(request):
-    context = {}  # Initialize an empty context dictionary
+    context = {} 
     
     if request.user.is_authenticated:
-        user = request.user  # Get the current logged-in user
-        print(f"Current user: {user}")  # Debugging print for user
-        
-        # Add basic user data to context
+        user = request.user      
         context['username'] = user.username.split('@')[0]
         context['email'] = user.email
         context['first_name'] = user.first_name
         context['last_name'] = user.last_name
         
         try:
-            # Fetch the related CustomUser instance
             custom_user = CustomUser.objects.get(user=user)
-            print(f"CustomUser data: {custom_user}")  # Debugging print for CustomUser
-            
-            # Add CustomUser data to context
             context['role'] = custom_user.role
             
         except CustomUser.DoesNotExist:
-            context['role'] = "user"  # Default role if CustomUser is not found
-            print(f"CustomUser not found for user: {user.username}")
+            context['role'] = "user"  
     else:
         context['not_authenticated'] = True
     
-    # Pass the context to the template
     return render(request, 'profile.html', context)
 
 
