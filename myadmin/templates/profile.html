@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Profile{% endblock %}
 {% block heading %}Profile{% endblock %}
@@ -19,11 +20,29 @@
         <img src="../../static/solar-profile.png" alt="solar-profile" class="w-[1550px] h-64 rounded-b-3xl">
     </div> 
     <div class="avatar flex justify-self-end">
-        <div class="w-64 h-64 rounded-full ring-2 ring-[#000000] -translate-y-[450px] relative mr-48 z-30 p-1">
-            <img src="../../static/Profile.png" class="w-full h-full rounded-full" />
-        </div>
-        
-    </div>
+        <form method="POST" action="{% url 'upload_profile_image' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="relative group w-64 h-64 rounded-full ring-2 ring-black -translate-y-[450px] mr-48 z-30 p-1 overflow-hidden">
+            <img 
+              src="{% if profile_image %}{{ profile_image.url }}{% else %}{% static 'Profile.jpg' %}{% endif %}" 
+              class="w-full h-full rounded-full object-cover transition-opacity duration-300"
+            />
+            
+            <label 
+              class="absolute inset-0 bg-black bg-opacity-50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer text-lg font-semibold rounded-full"
+            >
+              Upload
+              <input 
+                type="file" 
+                name="profile_image" 
+                accept="image/*" 
+                class="hidden" 
+                onchange="this.form.submit()"
+              />
+            </label>
+          </div>
+        </form>
+      </div>
     
     <div class="flex justify-self-end -translate-y-[450px] relative mr-[275px] mt-6">
         <div class="bg-[#9bebd8] border-2 border-[#00B087] text-[#008767] px-6 py-2 rounded-lg text-center ">

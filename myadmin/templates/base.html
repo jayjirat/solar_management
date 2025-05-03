@@ -22,7 +22,7 @@
         <a href="{% url 'profile' %}">
           <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
             <div class="w-10 rounded-full">
-              <img alt="Tailwind CSS Navbar component" src="../../static/Profile.png" />
+              <img alt="Tailwind CSS Navbar component"  src="{% if profile_image %}{{ profile_image.url }}{% else %}{% static 'Profile.jpg' %}{% endif %}" />
             </div>
           </div>
           <div class="pl-4">
@@ -119,6 +119,7 @@
     </div>
     </div>
   </div>
+  {# Modal in profile #}
   <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-xl shadow-lg w-80">
       <h3 class="text-xl font-semibold mb-4">Edit Username</h3>

@@ -24,10 +24,11 @@ class CustomUser(models.Model):
         null=True
     )
     display_name = models.CharField(max_length=150, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
 
     def __str__(self):
         role = self.role if self.role else "user"
-        return f"{self.user.username} role: {role} display name: {self.display_name}" 
+        return f"{self.user.username} role: {role} display name: {self.display_name} profile image: {self.profile_image}" 
 
     
 

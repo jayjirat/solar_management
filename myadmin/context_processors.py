@@ -8,7 +8,8 @@ def global_user_context(request):
                 'username': request.user.username,
                 'email': request.user.email,
                 'role': custom_user.role,
-                'display_name': custom_user.display_name or request.user.username.split('@')[0]
+                'display_name': custom_user.display_name or request.user.username.split('@')[0],
+                'profile_image': custom_user.profile_image
             }
         except CustomUser.DoesNotExist:
             return {}

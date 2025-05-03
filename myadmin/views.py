@@ -36,5 +36,12 @@ def update_display_name(request):
         custom_user.save() 
     return redirect('profile')
 
+def upload_profile_image(request):
+    if request.method == 'POST' and request.FILES.get('profile_image'):
+        custom_user = CustomUser.objects.get(user=request.user)
+        custom_user.profile_image = request.FILES['profile_image']
+        custom_user.save()
+    return redirect('profile')
+
 def create_power_plant(request):
     return render(request, 'create_power_plant.html')
