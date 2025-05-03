@@ -23,10 +23,11 @@ class CustomUser(models.Model):
         blank=True,
         null=True
     )
+    display_name = models.CharField(max_length=150, blank=True, null=True)
 
     def __str__(self):
         role = self.role if self.role else "user"
-        return f"{self.user.username} role: {role}"
+        return f"{self.user.username} role: {role} display name: {self.display_name}" 
 
     
 

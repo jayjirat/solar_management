@@ -153,7 +153,7 @@ class SocialLoginFacade:
 
             # Create custom user with default role
             CustomUser.objects.create(
-                user=user,
+                user=user,display_name=user.username.split('@')[0]
             )
             user = authenticate(request, username=user.username, password=user.password)
 
@@ -412,15 +412,15 @@ class ThammasatAuthFacade:
                 user.save()
                 
                 # Create associated CustomUser
-                CustomUser.objects.create(user=user)
+                CustomUser.objects.create(user=user,display_name=user.username)
                 
             else:
                 # Check if CustomUser exists for this user
                 try:
-                    CustomUser.objects.get(user=user)
+                    CustomUser.objects.get(user=user,display_name=user.username)
                 except CustomUser.DoesNotExist:
                     # Create CustomUser if it doesn't exist
-                    CustomUser.objects.create(user=user)
+                    CustomUser.objects.create(user=user,display_name=user.username)
 
             return user
         return None

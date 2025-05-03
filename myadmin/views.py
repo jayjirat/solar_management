@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from authentication.models import CustomUser
 
@@ -45,6 +45,14 @@ def profile(request):
     
     return render(request, 'profile.html', context)
 
+
+# def update_display_name(request):
+#     if request.method == "POST":
+#         display_name = request.POST.get("display_name")
+#         custom_user = CustomUser.objects.get(user=request.user)
+#         custom_user.display_name = display_name
+#         custom_user.save() 
+#     return redirect('profile')
 
 def create_power_plant(request):
     return render(request, 'create_power_plant.html')
