@@ -8,12 +8,10 @@
     {% block content %}
     <div class="bg-[#FFF4E0] w-full h-64 -translate-y-6 rounded-b-3xl z-20 relative">
         <h2 class="text-black text-3xl font-bold pt-[80px] pl-6 flex items-center gap-2">
-            {{ username }}
-            <a href="#" >
+            {{ display_name }}
+            <a href="#" onclick="openModal()">
                 <img src="../../static/Edit-solar.svg" alt="edit" class="inline-block w-5 h-5">
-              </a>
-            
-
+            </a>
         </h2>
         <p class="text-3xl pt-2 pl-6 font-thin">{{ role }}</p>
     </div>
@@ -35,9 +33,9 @@
     <div class="-translate-y-[610px]">
         <h2 class="text-black text-3xl font-bold pt-16 pl-6 flex items-center gap-2 ">
             Contact
-            <a href="#"><img src="../../static/Edit-solar.svg" alt="edit" class="inline-block w-5 h-5"></a>
         </h2>
         <p class="text-3xl pt-2 pl-6 font-thin">{{ email }}</p>
     </div>
     {% endblock %}
 {% endblock %}
+
