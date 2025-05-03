@@ -1,5 +1,5 @@
 from django.shortcuts import redirect
-from django.contrib.auth import login as auth_login
+from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.conf import settings
@@ -155,6 +155,7 @@ class SocialLoginFacade:
             CustomUser.objects.create(
                 user=user,
             )
+            user = authenticate(request, username=user.username, password=user.password)
 
             # Set the backend attribute and log in the new user
             # Set the backend attribute
@@ -355,8 +356,15 @@ class ThammasatAuthFacade:
             user = ThammasatAuthFacade.process_user_data(
                 username, response_data)
             if user:
-                return JsonResponse(ThammasatAuthFacade.generate_jwt_tokens(user), status=200)
-
+                authenticated_user = authenticate(request, username=username, password=password)
+                if authenticated_user:
+                    auth_login(request, authenticated_user)
+                    return JsonResponse(ThammasatAuthFacade.generate_jwt_tokens(authenticated_user), status=200)
+                else:
+                    user.backend = 'django.contrib.auth.backends.ModelBackend'
+                    auth_login(request, user)
+                    return JsonResponse(ThammasatAuthFacade.generate_jwt_tokens(user), status=200)
+            
         return JsonResponse({"error": "Invalid credentials"}, status=400)
 
     @staticmethod
@@ -380,7 +388,7 @@ class ThammasatAuthFacade:
 
     @staticmethod
     def process_user_data(username, response_data):
-        """Create or get user from the TU API response data."""
+        """Create or get user from the TU API response data and associate CustomUser."""
         if response_data.get("status") is True:
             email = response_data.get("email")
             name = response_data.get("displayname_en")
@@ -402,6 +410,17 @@ class ThammasatAuthFacade:
                 if year:
                     user.year = year
                 user.save()
+                
+                # Create associated CustomUser
+                CustomUser.objects.create(user=user)
+                
+            else:
+                # Check if CustomUser exists for this user
+                try:
+                    CustomUser.objects.get(user=user)
+                except CustomUser.DoesNotExist:
+                    # Create CustomUser if it doesn't exist
+                    CustomUser.objects.create(user=user)
 
             return user
         return None

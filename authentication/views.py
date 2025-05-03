@@ -16,6 +16,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .facade import SocialLoginFacade
 from .facade import ThammasatAuthFacade
+from django.contrib.auth import login as auth_login
+
 
 
 
@@ -43,8 +45,9 @@ class LoginView(APIView):
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
             user = authenticate(username=username, password=password)
-
-            if user:
+            
+            if user:    
+                auth_login(request, user)
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     'refresh': str(refresh),

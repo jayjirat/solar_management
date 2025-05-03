@@ -110,12 +110,13 @@
 
 
       <!-- Main Content Area -->
-      <div class="flex-1 flex items-center justify-center">
+      <div class="flex-1 {% block main_content_class %}flex items-center justify-center{% endblock %}">
+        {% block outer_content %}
         <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl">
-          <!-- Your content inside the box -->
-          {% block content %} {% endblock %}
+            {% block content %}{% endblock %}
         </div>
-      </div>
+        {% endblock %}
+    </div>
     </div>
   </div>
 </body>

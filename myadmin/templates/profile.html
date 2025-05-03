@@ -8,10 +8,10 @@
     {% block content %}
     <div class="bg-[#FFF4E0] w-full h-64 -translate-y-6 rounded-b-3xl z-20 relative">
         <h2 class="text-black text-3xl font-bold pt-[80px] pl-6 flex items-center gap-2">
-            PengPeng
+            {{ username }}
             <a href="#"><img src="../../static/Edit-solar.svg" alt="edit" class="inline-block w-5 h-5"></a>
         </h2>
-        <p class="text-3xl pt-2 pl-6 font-thin">Admin</p>
+        <p class="text-3xl pt-2 pl-6 font-thin">{{ role }}</p>
     </div>
     <div class="w-full z-10 -translate-y-64 relative flex justify-center">
         <img src="../../static/solar-profile.png" alt="solar-profile" class="w-[1550px] h-64 rounded-b-3xl">
@@ -33,8 +33,7 @@
             Contact
             <a href="#"><img src="../../static/Edit-solar.svg" alt="edit" class="inline-block w-5 h-5"></a>
         </h2>
-        <p class="text-3xl pt-2 pl-6 font-thin">Jiratzataliban007@gmail.com</p>
-        <p class="text-3xl pt-2 pl-6 font-thin">094-231-23124</p>
+        <p class="text-3xl pt-2 pl-6 font-thin">{{ email }}</p>
     </div>
     {% endblock %}
 {% endblock %}
