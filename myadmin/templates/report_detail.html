@@ -1,0 +1,56 @@
+{% extends 'base.html' %} {% block title %}Report - Detail{% endblock%}
+{% block heading %}Report Detail{% endblock %} 
+{% block content %}
+
+<style>
+    .bg-100-color {
+        background-color:rgb(12, 143, 0);
+      }
+    .bg-75-color {
+        background-color:rgb(103, 218, 50);
+    }
+    .bg-50-color {
+        background-color:rgb(247, 204, 12);
+      }
+    .bg-25-color {
+        background-color:rgb(230, 75, 70);
+    }
+</style>
+
+<div class="card bg-base-100 shadow mt-4">
+    <div class="card-body">
+      <h2 class="card-title text-3xl font-bold mb-4">Description</h2>
+      <div class="grid gap-2">
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Power Plant :</span>
+          <span>Power Plant 1</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Name:</span>
+          <span>PPI_25FEB2025</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Reporter :</span>
+          <span>jayyyy2257</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Created Date:</span>
+          <span>20/02/2568</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Uploaded Date:</span>
+          <span>25/02/2568</span>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% comment %} gonna need a for loop for all the zone and their efficiency {% endcomment %}
+<h1 class="text-3xl font-semibold leading-tight mt-4 mx-6"> Results </h1>
+<div class="flex gap-2">
+    <div class="w-6 h-6 bg-100-color rounded"></div>
+    <div class="w-6 h-6 bg-75-color rounded"></div>
+    <div class="w-6 h-6 bg-50-color rounded"></div>
+    <div class="w-6 h-6 bg-25-color rounded"></div>
+</div>    
+{% endblock content %}
