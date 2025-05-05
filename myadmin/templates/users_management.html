@@ -39,7 +39,7 @@ block content %} {% block content %}
             {{customuser.status}}</div>
         </td>
         <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
+          <a href="{% url 'users_management_manage' user_id=customuser.id %}" class="btn btn-soft btn-accent">Manage</a>
         </td>
       </tr>
       {% endfor %}
