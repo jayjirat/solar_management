@@ -8,21 +8,30 @@ from datetime import timedelta
 
 
 class RoleEnum(Enum):
+    USER = 'user', 'User'
     ADMIN = 'admin', 'Admin'
     SUPERADMIN = 'superadmin', 'Super Admin'
     DATA_ANALYST = 'data_analyst', 'Data Analyst'
     DRONE_CONTROLLER = 'drone_controller', 'Drone Controller'
 
+class StatusEnum(Enum):
+    ACTIVE = 'active', 'Active'
+    INACTIVE = 'inactive', 'Inactive'
 
 # Create your models here.
 class CustomUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(
-        max_length=20,
-        choices=[(tag.value[0], tag.value[1]) for tag in RoleEnum],
-        blank=True,
-        null=True
+    max_length=20,
+    choices=[(tag.value[0], tag.value[1]) for tag in RoleEnum],
+    default=RoleEnum.USER.value[0],
     )
+    status = models.CharField(
+    max_length=20,
+    choices=[(tag.value[0], tag.value[1]) for tag in StatusEnum],
+    default=StatusEnum.ACTIVE.value[0],
+    )
+
 
     def __str__(self):
         role = self.role if self.role else "user"

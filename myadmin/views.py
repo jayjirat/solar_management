@@ -1,10 +1,12 @@
 from django.shortcuts import render
-
+from authentication.models import CustomUser
 # Create your views here.
 
 
 def users_management(request):
-    return render(request, 'users_management.html')
+    users = CustomUser.objects.all()
+    context = {'users': users}
+    return render(request, 'users_management.html',context=context)
 
 
 def dashboard(request):
