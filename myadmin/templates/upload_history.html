@@ -2,13 +2,15 @@
 {% block heading %}Upload & History{% endblock %} {% block content %}
 
 <div style="display: flex; justify-content: center; align-items: center; margin-top: 40px;">
-<select id="powerplant" name="powerplant" style="border: 2px solid #e1e1e1; padding: 12px 20px; border-radius: 8px; width: 200px;" required >
-    <option value="" disabled selected>Select Powerplant</option>
-</select>
-<select id="powerplant" name="powerplant"
-    style="border: 2px solid #e1e1e1; padding: 12px 20px; border-radius: 8px; width: 130px; margin-left: 20px;" required >
-    <option value="" disabled selected>Zone</option>
-</select>
+    <select id="powerplant" name="powerplant"
+        style="border: 2px solid #e1e1e1; padding: 12px 20px; border-radius: 8px; width: 200px;" required>
+        <option value="" disabled selected>Select Powerplant</option>
+    </select>
+    <select id="powerplant" name="powerplant"
+        style="border: 2px solid #e1e1e1; padding: 12px 20px; border-radius: 8px; width: 130px; margin-left: 20px;"
+        required>
+        <option value="" disabled selected>Zone</option>
+    </select>
 </div>
 
 <!-- Container หลัก (กล่องขาว) -->
@@ -23,10 +25,10 @@
             Please upload square image, size less than 100KB
         </p>
         <div style="background-color: #f4fbff; height: 66px; display: flex; align-items: center; padding: 0 10px;">
-    
+
             <!-- input ซ่อน -->
             <input type="file" id="fileInput" style="display: none;" accept="image/*" />
-    
+
             <!-- ปุ่มแทน label -->
             <label for="fileInput"
                 style="border: 2px solid #e16737; width: 150px; padding: 0.6em; color: #e16737; font-weight: bolder; border-radius: 8px; text-align: center; cursor: pointer;">
@@ -69,3 +71,5 @@
 </script>
 
 static/picture_icon.jpg
+
+{% endblock %}
