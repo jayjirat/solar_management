@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import ImageUploadForm
+from .models import PowerPlant, Zone
 
 # Create your views here.
 
@@ -16,7 +18,16 @@ def solar(request):
 
 
 def upload(request):
-    return render(request, 'upload_history.html')
+    # if request.method == 'POST':
+    #     form = ImageUploadForm(request.POST, request.FILES)
+    #     if form.is_valid():
+    #         form.save()
+    #         return redirect('upload_image')
+    # else:
+    #     form = ImageUploadForm()
+
+    # powerplants = PowerPlant.objects.all()
+    return render(request, 'upload_history.html') # , {'form': form, 'powerplants': powerplants})
 
 
 def reports(request):

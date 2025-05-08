@@ -1,6 +1,8 @@
 
 from django.urls import path
 from . import views
+# from django.conf import settings
+# from django.conf.urls.static import static
 
 urlpatterns = [
     path('users_management/', views.users_management, name='users_management'),
@@ -10,4 +12,4 @@ urlpatterns = [
     path('reports/', views.reports, name='reports'),
     path('profile/', views.profile, name='profile'),
     path('create_power_plant/', views.create_power_plant, name='create')
-]
+]# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
