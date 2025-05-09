@@ -1,7 +1,5 @@
+
 from django.shortcuts import render
-
-# Create your views here.
-
 
 def users_management(request):
     return render(request, 'users_management.html')
@@ -24,7 +22,6 @@ def reports(request):
 
 def profile(request):
     return render(request, 'profile.html')
-
 
 def create_power_plant(request):
     return render(request, 'create_power_plant.html')
