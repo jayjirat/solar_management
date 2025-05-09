@@ -1,0 +1,64 @@
+{% extends 'base.html' %} {% block title %}Report - Detail{% endblock%}
+{% block heading %}Report Detail{% endblock %} 
+{% block content %}
+
+<style>
+    .bg-100-color {
+        background-color:rgb(12, 143, 0);
+      }
+    .bg-75-color {
+        background-color:rgb(103, 218, 50);
+    }
+    .bg-50-color {
+        background-color:rgb(247, 204, 12);
+      }
+    .bg-25-color {
+        background-color:rgb(230, 75, 70);
+    }
+</style>
+
+<div class="card bg-base-100 shadow mt-4">
+    <div class="card-body">
+      <h2 class="card-title text-3xl font-bold mb-4">Description</h2>
+      <div class="grid gap-2">
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Power Plant :</span>
+          <span>Power Plant 1</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Name:</span>
+          <span>PPI_25FEB2025</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Reporter :</span>
+          <span>jayyyy2257</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Created Date:</span>
+          <span>20/02/2568</span>
+        </div>
+        <div class="flex justify-start gap-x-4">
+          <span class="font-semibold">Uploaded Date:</span>
+          <span>25/02/2568</span>
+        </div>
+      </div>
+    </div>
+</div>
+
+<h1 class="text-3xl font-semibold leading-tight mt-4 mx-6"> Results </h1>
+
+{% for zone in solar_data %}
+  <h2 class="font-bold">{{ zone.zone_name }}</h2>
+  <p>Row: {{ zone.row }}, Column: {{ zone.col }}</p>
+      <div class="p-4 border rounded shadow max-w-full overflow-x-auto">
+        {% for row in zone.zone_data %}
+        <div class="flex space-x-1 mb-1">
+          {% for color in row %}
+              <div class="w-8 h-8 {{ color.color_class }} rounded shrink-0 hover-div"></div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+{% endfor %}
+
+{% endblock content %}
