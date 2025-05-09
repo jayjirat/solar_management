@@ -70,3 +70,14 @@ class ReportResult(models.Model):
 
     def __str__(self):
         return f"{self.zone.name} ({self.report.createdAt}) - {self.efficiency_percentage}%"
+
+class ImageUpload(models.Model):
+    image = models.ImageField(upload_to='uploads/')
+    powerplant = models.ForeignKey(PowerPlant, on_delete=models.CASCADE, null=True, blank=True)
+    zone = models.ForeignKey(Zone, on_delete=models.CASCADE, null=True, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.powerplant.name if self.powerplant else 'No PowerPlant'} - {self.zone.name if self.zone else 'No Zone'} - {self.uploaded_at.strftime('%Y-%m-%d')}"
+
+

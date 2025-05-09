@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PowerPlant, Zone, SolarCell, Report, ReportResult
+from .models import PowerPlant, Zone, SolarCell, Report, ReportResult, ImageUpload
 
 # Register your models here.
 admin.site.register(PowerPlant)

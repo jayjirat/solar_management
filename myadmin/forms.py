@@ -1,8 +1,8 @@
 # forms.py
 from django import forms
-from .models import SolarCell
+from .models import ImageUpload
 
 class ImageUploadForm(forms.ModelForm):
     class Meta:
-        model = SolarCell
-        fields = ['zone', 'image']
+        model = ImageUpload
+        fields = ['image']  # powerplant และ zone ใส่เองใน view

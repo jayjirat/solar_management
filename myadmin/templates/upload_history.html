@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}Admin - Upload & History{% endblock %}
 {% block heading %}Upload & History{% endblock %}
 {% block content %}
@@ -7,16 +8,21 @@
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <div style="display: flex; justify-content: center; align-items: center; margin-top: 40px;">
-        <select name="zone" style="border: 2px solid #e1e1e1; padding: 12px 20px; border-radius: 8px; width: 300px;"
-            required>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 40px;">
+        <!-- Static PowerPlant Options -->
+        <select name="powerplant" id="powerplantSelect">
+            <option value="" disabled selected>Select PowerPlant</option>
+            <option value="1">PowerPlant 1</option>
+            <option value="2">PowerPlant 2</option>
+            <option value="3">PowerPlant 3</option>
+        </select>
+
+        <!-- Static Zone Options -->
+        <select name="zone" id="zoneSelect">
             <option value="" disabled selected>Select Zone</option>
-            <option value="Samutprakarn">Samutprakarn</option>
-            {% for powerplant in powerplants %}
-            {% for zone in powerplant.zone.all %}
-            <option value="{{ zone.id }}">{{ powerplant.name }} - {{ zone.name }}</option>
-            {% endfor %}
-            {% endfor %}
+            <option value="1">Zone 1</option>
+            <option value="2">Zone 2</option>
+            <option value="3">Zone 3</option>
         </select>
     </div>
 
