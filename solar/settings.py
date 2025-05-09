@@ -35,7 +35,8 @@ SECRET_KEY = "django-insecure-$v*9m91xi*kk0(8+^ok-)hwy--4^e6eptjs55@4&t(qt9j!f1^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "54.79.117.167", "solarizz.duckdns.org"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost",
+                 "54.79.117.167", "solarizz.duckdns.org"]
 
 # Application definition
 
@@ -56,7 +57,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.facebook",
-    ]
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -157,7 +158,8 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "6510615062@student.tu.ac.th"
-EMAIL_HOST_PASSWORD = os.getenv('MAIL_APP_KEY') # Use app password instead of real password
+# Use app password instead of real password
+EMAIL_HOST_PASSWORD = os.getenv('MAIL_APP_KEY')
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -170,21 +172,23 @@ FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+
 SOCIALACCOUNT_PROVIDERS = {
-    'google':{
-        'APP':{
-            'client_id':GOOGLE_CLIENT_ID,
-            'secret':GOOGLE_CLIENT_SECRET,
-            'key':''
+    'google': {
+        'APP': {
+            'client_id': GOOGLE_CLIENT_ID,
+            'secret': GOOGLE_CLIENT_SECRET,
+            'key': ''
         }
     },
-    'facebook':{
-        'APP':{
-            'client_id':FACEBOOK_CLIENT_ID,
-            'secret':FACEBOOK_CLIENT_SECRET,
+    'facebook': {
+        'APP': {
+            'client_id': FACEBOOK_CLIENT_ID,
+            'secret': FACEBOOK_CLIENT_SECRET,
         },
-        'AUTH_PARAMS':{
-            'auth_type':'reauthenticate'
+        'AUTH_PARAMS': {
+            'auth_type': 'reauthenticate'
         }
     }
 }

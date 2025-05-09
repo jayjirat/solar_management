@@ -11,5 +11,5 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/update-name/', views.update_display_name, name='update_display_name'),
     path('profile/upload-image/', views.upload_profile_image, name='upload_profile_image'),
-    path('create_power_plant/', views.create_power_plant, name='create')
+    path('solar_management/create/', views.create_powerplant, name='create'),
 ]
