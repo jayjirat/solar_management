@@ -1,85 +1,94 @@
 {% extends 'base.html' %} {% block title %}Admin - Solar Management{% endblock%}
 {% block heading %}Solar Management{% endblock %} {% block content %}
 <div class="flex flex-row justify-between">
-    <div class="flex flex-col">
-        <div class="text-xl font-bold">Solar Plants</div>
-        <div class="text-sm text-teal-400">Active Members</div>
-    </div>
-    <div>
-        <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
-    </div>
+  <div class="flex flex-col">
+    <div class="text-xl font-bold">Solar Plants</div>
+    <div class="text-sm text-teal-400">Active Members</div>
+  </div>
+  <!-- Right: Search + Create -->
+  <div class="flex items-center gap-10">
+    <input
+      type="text"
+      placeholder="Search"
+      class="input input-bordered w-24 md:w-auto"
+    />
+    <a href="{% url 'create' %}">
+      <button class="btn btn-neutral">Create</button>
+    </a>
+  </div>
 </div>
-<div class="overflow-x-auto overflow-y-auto mt-8" style="max-height: calc(100% - 80px)">
-    <table class="table">
-        <!-- head -->
-        <thead>
-            <tr>
-                <th>Plants ID</th>
-                <th>Powerplant</th>
-                <th>Address</th>
-                <th>Total Tasks</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- row 1 -->
+<div
+  class="overflow-x-auto overflow-y-auto mt-8"
+  style="max-height: calc(100% - 80px)"
+>
+  <table class="table">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th>Plants ID</th>
+        <th>Powerplant</th>
+        <th>Address</th>
+        <th>Total Tasks</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- row 1 -->
 
-            <!-- row 2 -->
-            <tr class="hover:bg-base-300">
-                <td>1</td>
-                <td>SolarSpeed</td>
-                <td>Address1</td>
-                <td>0</td>
-                <td>
-                    <div class="badge badge-success">Active</div>
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-accent">Manage</button>
-                </td>
-            </tr>
+      <!-- row 2 -->
+      <tr class="hover:bg-base-300">
+        <td>1</td>
+        <td>SolarSpeed</td>
+        <td>Address1</td>
+        <td>0</td>
+        <td>
+          <div class="badge badge-success">Active</div>
+        </td>
+        <td>
+          <button class="btn btn-soft btn-accent">Manage</button>
+        </td>
+      </tr>
 
-            <tr class="hover:bg-base-300">
-                <td>2</td>
-                <td>SSplant</td>
-                <td>Address2</td>
-                <td>4</td>
-                <td>
-                    <div class="badge badge-error">Inactive</div>
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-accent">Manage</button>
-                </td>
-            </tr>
+      <tr class="hover:bg-base-300">
+        <td>2</td>
+        <td>SSplant</td>
+        <td>Address2</td>
+        <td>4</td>
+        <td>
+          <div class="badge badge-error">Inactive</div>
+        </td>
+        <td>
+          <button class="btn btn-soft btn-accent">Manage</button>
+        </td>
+      </tr>
 
-            <tr class="hover:bg-base-300">
-                <td>3</td>
-                <td>yuutoutopia</td>
-                <td>Address3</td>
-                <td>7</td>
-                <td>
-                    <div class="badge badge-error">Inactive</div>
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-accent">Manage</button>
-                </td>
-            </tr>
+      <tr class="hover:bg-base-300">
+        <td>3</td>
+        <td>yuutoutopia</td>
+        <td>Address3</td>
+        <td>7</td>
+        <td>
+          <div class="badge badge-error">Inactive</div>
+        </td>
+        <td>
+          <button class="btn btn-soft btn-accent">Manage</button>
+        </td>
+      </tr>
 
-            <tr class="hover:bg-base-300">
-                <td>4</td>
-                <td>NicePlant</td>
-                <td>Address4</td>
-                <td>8</td>
-                <td>
-                    <div class="badge badge-success">Active</div>
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-accent">Manage</button>
-                </td>
-            </tr>
-
-
-        </tbody>
-    </table>
+      <tr class="hover:bg-base-300">
+        <td>4</td>
+        <td>NicePlant</td>
+        <td>Address4</td>
+        <td>8</td>
+        <td>
+          <div class="badge badge-success">Active</div>
+        </td>
+        <td>
+          <button class="btn btn-soft btn-accent">Manage</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 {% endblock%}
