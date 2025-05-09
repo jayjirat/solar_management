@@ -18,17 +18,16 @@ def solar(request):
 
 
 def upload(request):
-    # if request.method == 'POST':
-    #     form = ImageUploadForm(request.POST, request.FILES)
-    #     if form.is_valid():
-    #         form.save()
-    #         return redirect('upload_image')
-    # else:
-    #     form = ImageUploadForm()
+    if request.method == 'POST':
+        form = ImageUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('upload_image')
+    else:
+        form = ImageUploadForm()
 
-    # powerplants = PowerPlant.objects.all()
-    return render(request, 'upload_history.html') # , {'form': form, 'powerplants': powerplants})
-
+    powerplants = PowerPlant.objects.all()
+    return render(request, 'upload_history.html', {'form': form, 'powerplants': powerplants})
 
 def reports(request):
     return render(request, 'reports.html')

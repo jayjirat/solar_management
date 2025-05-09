@@ -38,7 +38,7 @@ class Zone(models.Model):
 
 class SolarCell(models.Model):
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE, related_name="solar_cell")
-    # image = models.ImageField(upload_to='solarcell_images/', null=True, blank=True)
+    image = models.ImageField(upload_to='solarcell_images/', null=True, blank=True)
 
     def __str__(self):
         return f"SolarCell in {self.zone.name}"
