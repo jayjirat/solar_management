@@ -9,5 +9,5 @@ urlpatterns = [
     path('upload_history/', views.upload, name='upload_history'),
     path('reports/', views.reports, name='reports'),
     path('profile/', views.profile, name='profile'),
-    path('create_powerplant/', views.create_powerplant, name='create'),
+    path('solar_management/create/', views.create_powerplant, name='create'),
 ]
