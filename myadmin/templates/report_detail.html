@@ -45,12 +45,20 @@
     </div>
 </div>
 
-{% comment %} gonna need a for loop for all the zone and their efficiency {% endcomment %}
 <h1 class="text-3xl font-semibold leading-tight mt-4 mx-6"> Results </h1>
-<div class="flex gap-2">
-    <div class="w-6 h-6 bg-100-color rounded"></div>
-    <div class="w-6 h-6 bg-75-color rounded"></div>
-    <div class="w-6 h-6 bg-50-color rounded"></div>
-    <div class="w-6 h-6 bg-25-color rounded"></div>
-</div>    
+
+{% for zone in solar_data %}
+  <h2 class="font-bold">{{ zone.zone_name }}</h2>
+  <p>Row: {{ zone.row }}, Column: {{ zone.col }}</p>
+      <div class="p-4 border rounded shadow max-w-full overflow-x-auto">
+        {% for row in zone.zone_data %}
+        <div class="flex space-x-1 mb-1">
+          {% for color in row %}
+              <div class="w-8 h-8 {{ color.color_class }} rounded shrink-0 hover-div"></div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+{% endfor %}
+
 {% endblock content %}
