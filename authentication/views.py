@@ -19,9 +19,6 @@ from .facade import ThammasatAuthFacade
 from django.contrib.auth import login as auth_login
 
 
-
-
-
 def home(request):
     return render(request, 'home.html')
 
