@@ -1,6 +1,8 @@
 
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('users_management/', views.users_management, name='users_management'),
@@ -9,5 +11,10 @@ urlpatterns = [
     path('upload_history/', views.upload, name='upload_history'),
     path('reports/', views.reports, name='reports'),
     path('profile/', views.profile, name='profile'),
-    path('create_power_plant/', views.create_power_plant, name='create'),
-]
+    path('profile/update-name/', views.update_display_name, name='update_display_name'),
+    path('profile/upload-image/', views.upload_profile_image, name='upload_profile_image'),
+    path('solar_management/create/', views.create_powerplant, name='create'),
+    path('report_detail/', views.report_detail, name='report_detail'),
+    path('upload_history/', views.upload, name='upload_history'),
+    path('get_zones/<int:powerplant_id>/', views.get_zones, name='get_zones'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,7 +6,6 @@ from django.utils.timezone import now
 from datetime import timedelta
 
 
-
 class RoleEnum(Enum):
     ADMIN = 'admin', 'Admin'
     SUPERADMIN = 'superadmin', 'Super Admin'
@@ -23,12 +22,13 @@ class CustomUser(models.Model):
         blank=True,
         null=True
     )
+    display_name = models.CharField(max_length=150, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
 
     def __str__(self):
         role = self.role if self.role else "user"
-        return f"{self.user.username} role: {role}"
+        return f"{self.user.username} role: {role} display name: {self.display_name} profile image: {self.profile_image}" 
 
-    
 
 class EmailOTP(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

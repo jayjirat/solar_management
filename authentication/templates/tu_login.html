@@ -76,18 +76,22 @@
             if (data.access) {
                 localStorage.setItem('access_token', data.access);
                 localStorage.setItem('refresh_token', data.refresh);
-                localStorage.setItem('username', data.username);
-                localStorage.setItem('role', data.role ?? "user");
-
-                let role = data.role ?? "user";
-                if (role == 'user') {
+                if (data.user) {
+                    localStorage.setItem('username', data.user.username);
+                    let role = data.user.role || "user";
+                    localStorage.setItem('role', role);
+                    
+                    if (role === 'admin') {
+                        window.location.href = "/solar-system/dashboard";
+                    } else if (role === "drone_controller") {
+                        window.location.href = "/solar-system/upload_history";
+                    } else if (role === "data_analyst") {
+                        window.location.href = "/solar-system/reports";
+                    } else {
+                        window.location.href = "/";
+                    }
+                } else {
                     window.location.href = "/";
-                } else if (role == 'admin') {
-                    window.location.href = "/solar-system/dashboard";
-                } else if (role == "drone_controller") {
-                    window.location.href = "/solar-system/upload_history";
-                } else if (role == "data_analyst") {
-                    window.location.href = "/solar-system/reports";
                 }
             } else {
                 errorText.textContent = 'Invalid username or password';
