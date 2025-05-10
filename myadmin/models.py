@@ -71,21 +71,14 @@ class Report(models.Model):
 class ReportResult(models.Model):
     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="results")
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
-    solar_cell = models.ForeignKey(SolarCell, on_delete=models.CASCADE)
-    efficiency_percentage = models.FloatField()
 
-    def clean(self):
-        if self.solar_cell.zone != self.zone:
-            raise ValidationError("Solar cell does not belong to the specified zone.")
-        if self.zone.powerplant != self.report.powerplant:
-            raise ValidationError("Zone does not belong to the same powerplant as the report.")
-
-    def save(self, *args, **kwargs):
-        self.full_clean()  # runs clean()
-        super().save(*args, **kwargs)
-    
     def __str__(self):
-        return f"Report of {self.zone.name} on {self.solar_cell} when {self.report.createdAt}"
+        return f"Report of {self.zone.name} when {self.report.createdAt}"
+
+class CellEfficiency(models.Model):
+    report_result = models.ForeignKey(ReportResult, on_delete=models.CASCADE, related_name="cell_efficiency")
+    solar_cell = models.ForeignKey(SolarCell,on_delete=models.CASCADE, related_name="cell_efficiency")
+    efficiency_percentage = models.FloatField()
 
 class ImageUpload(models.Model):
     image = models.ImageField(upload_to='uploads/')

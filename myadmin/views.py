@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import ImageUploadForm
-from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser
+from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, ReportResult, Report, CellEfficiency
 
 # Users & Profile Management
 def users_management(request):
@@ -98,16 +98,34 @@ def create_powerplant(request):
 
 
 # Report Detail
-def report_detail(request):
+def report_detail(request, report_result_id):
+    report_result = ReportResult.objects.get(id=report_result_id)
+    zone = report_result.zone
+    x = zone.width
+    y = zone.height
+    zone_data = []
+    sorted_solar_cell_list = SolarCell.objects.order_by('y_position', 'x_position')
+    eff_map = {
+    e.solar_cell_id: e 
+    for e in CellEfficiency.objects.filter(report_result=report_result)}
+
+    cell_efficiencies = [eff_map.get(cell.id) for cell in sorted_solar_cell_list]
+
+    i = 0
+    while i < len(cell_efficiencies):
+        row_list = []
+        for j in range(x):
+            row_list.append({'value': cell_efficiencies[i].efficiency_percentage})
+            i += 1
+        zone_data.append(row_list)
+
+
     solar_data = [
         {
-            'row': 2,
-            'col': 2,
-            'zone_name': 'Zone Keos',
-            'zone_data': [
-                [{'label': 'Metric A', 'value': 0.9}, {'label': 'Metric B', 'value': 0.6}],
-                [{'label': 'Metric C', 'value': 0.2}, {'label': 'Metric D', 'value': 0.4}]
-            ]
+            'row': y,
+            'col': x,
+            'zone_name': zone.name,
+            'zone_data': zone_data
         },
         {
             'row': 4,
