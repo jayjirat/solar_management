@@ -30,7 +30,13 @@ def upload_profile_image(request):
 
 # Dashboard & Management Pages
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    # Get all active powerplants from the database
+    powerplants = PowerPlant.objects.filter(status='active')
+    
+    context = {
+        'powerplants': powerplants,
+    }
+    return render(request, 'dashboard.html', context)
 
 def solar(request):
     return render(request, 'solar_management.html')

@@ -7,44 +7,29 @@
 <div class="flex flex-col h-full bg-base-100">
   <!-- Header -->
   <div class="flex justify-between items-center p-4 border-b">
-    
+
+    <!-- Select Powerplant Dropdown -->
     <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-outline">Select Powerplants</div>
-        <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
-          <div class="form-control">
-            <label class="label cursor-pointer">
-              <span class="label-text">Powerplant 1</span>
-              <input type="checkbox" class="checkbox powerplant-checkbox" value="1" checked />
-            </label>
-          </div>
-          <div class="form-control">
-            <label class="label cursor-pointer">
-              <span class="label-text">Powerplant 2</span>
-              <input type="checkbox" class="checkbox powerplant-checkbox" value="2" checked />
-            </label>
-          </div>
-          <div class="form-control">
-            <label class="label cursor-pointer">
-              <span class="label-text">Powerplant 3</span>
-              <input type="checkbox" class="checkbox powerplant-checkbox" value="3" checked />
-            </label>
-          </div>
-          <div class="form-control">
-            <label class="label cursor-pointer">
-              <span class="label-text">Powerplant 4</span>
-              <input type="checkbox" class="checkbox powerplant-checkbox" value="4" checked />
-            </label>
-          </div>
-          <div class="form-control">
-            <label class="label cursor-pointer">
-              <span class="label-text">Powerplant 5</span>
-              <input type="checkbox" class="checkbox powerplant-checkbox" value="5" checked />
-            </label>
-          </div>
-          <div class="divider my-1"></div>
-          <button class="btn btn-primary btn-sm" onclick="updatePowerplantChart()">Apply</button>
-        </div>
-      </div>
+    <div tabindex="0" role="button" class="btn btn-outline">Select Powerplants</div>
+    <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
+        {% if powerplants %}
+            {% for powerplant in powerplants %}
+            <div class="form-control">
+                <label class="label cursor-pointer">
+                    <span class="label-text">{{ powerplant.name }}</span>
+                    <input type="checkbox" class="checkbox powerplant-checkbox" value="{{ powerplant.id }}" checked />
+                </label>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="form-control">
+                <p class="text-sm text-gray-500 p-2">No powerplants available</p>
+            </div>
+        {% endif %}
+        <div class="divider my-1"></div>
+        <button class="btn btn-primary btn-sm" onclick="updatePowerplantChart()">Apply</button>
+    </div>
+    </div>
     
     <!-- Date Range Picker -->
     <div class="dropdown dropdown-end">
@@ -148,32 +133,20 @@
         
         <!-- Powerplant Stats -->
         <div class="grid grid-cols-5 gap-4 mb-4">
-          <div class="stat bg-base-200 rounded-box p-2">
-            <div class="stat-title">Powerplant 1</div>
-            <div class="stat-value">200W</div>
-            <div class="stat-desc text-success">+3%</div>
-          </div>
-          <div class="stat bg-base-200 rounded-box p-2">
-            <div class="stat-title">Powerplant 2</div>
-            <div class="stat-value">200W</div>
-            <div class="stat-desc text-success">+3%</div>
-          </div>
-          <div class="stat bg-base-200 rounded-box p-2">
-            <div class="stat-title">Powerplant 3</div>
-            <div class="stat-value">200W</div>
-            <div class="stat-desc text-success">+3%</div>
-          </div>
-          <div class="stat bg-base-200 rounded-box p-2">
-            <div class="stat-title">Powerplant 4</div>
-            <div class="stat-value">200W</div>
-            <div class="stat-desc text-success">+3%</div>
-          </div>
-          <div class="stat bg-base-200 rounded-box p-2">
-            <div class="stat-title">Powerplant 5</div>
-            <div class="stat-value">200W</div>
-            <div class="stat-desc text-success">+3%</div>
-          </div>
+            {% for powerplant in powerplants %}
+            <div class="stat bg-base-200 rounded-box p-2">
+                <div class="stat-title">{{ powerplant.name }}</div>
+                <div class="stat-value">200W</div>
+                <div class="stat-desc text-success">+3%</div>
+            </div>
+            {% empty %}
+            <div class="stat bg-base-200 rounded-box p-2">
+                <div class="stat-title">No powerplants</div>
+                <div class="stat-value">0W</div>
+            </div>
+            {% endfor %}
         </div>
+
         
         <!-- Powerplant Chart -->
         <div class="w-full h-64">
@@ -244,44 +217,40 @@
 <script>
   // Initialize charts when the DOM is loaded
   document.addEventListener('DOMContentLoaded', function() {
+    // Get powerplant data from Django template
+    const powerplantData = [
+      {% for powerplant in powerplants %}
+      {
+        id: {{ powerplant.id }},
+        name: "{{ powerplant.name }}",
+        // Add default data for the chart - you might want to replace this with actual data
+        data: [280, 300, 320, 300, 290, 310, 300, 290, 300],
+        borderColor: getRandomColor({{ forloop.counter0 }})
+      },
+      {% empty %}
+      // Fallback data if no powerplants exist
+      {
+        id: 1,
+        name: "No Powerplants",
+        data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        borderColor: 'rgba(200, 200, 200, 1)'
+      }
+      {% endfor %}
+    ];
+    
     // Initialize powerplant comparison chart
     const powerplantCtx = document.getElementById('powerplantChart').getContext('2d');
     const powerplantChart = new Chart(powerplantCtx, {
       type: 'line',
       data: {
         labels: ['Mon, 20', 'Tue, 21', 'Wed, 22', 'Thu, 23', 'Fri, 24', 'Sat, 25', 'Sun, 26', 'Mon, 27', 'Tue, 28'],
-        datasets: [
-          {
-            label: 'Powerplant 1',
-            data: [280, 300, 320, 300, 290, 310, 300, 290, 300],
-            borderColor: 'rgba(75, 192, 192, 1)',
-            tension: 0.3
-          },
-          {
-            label: 'Powerplant 2',
-            data: [250, 270, 290, 310, 330, 320, 310, 300, 290],
-            borderColor: 'rgba(255, 99, 132, 1)',
-            tension: 0.3
-          },
-          {
-            label: 'Powerplant 3',
-            data: [220, 240, 260, 280, 270, 260, 280, 290, 300],
-            borderColor: 'rgba(255, 205, 86, 1)',
-            tension: 0.3
-          },
-          {
-            label: 'Powerplant 4',
-            data: [200, 220, 240, 260, 280, 300, 290, 280, 270],
-            borderColor: 'rgba(54, 162, 235, 1)',
-            tension: 0.3
-          },
-          {
-            label: 'Powerplant 5',
-            data: [180, 200, 220, 240, 230, 250, 270, 260, 250],
-            borderColor: 'rgba(153, 102, 255, 1)',
-            tension: 0.3
-          }
-        ]
+        datasets: powerplantData.map(plant => ({
+          label: plant.name,
+          data: plant.data,
+          borderColor: plant.borderColor,
+          tension: 0.3,
+          powerplantId: plant.id // Store the ID for filtering
+        }))
       },
       options: {
         responsive: true,
@@ -301,6 +270,9 @@
         }
       }
     });
+    
+    // Store chart instance for later updates
+    window.powerplantChart = powerplantChart;
     
     // Initialize hourly power report chart
     const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
@@ -343,6 +315,20 @@
     document.getElementById('startDate').value = formattedDate;
     document.getElementById('endDate').value = formattedDate;
   });
+  
+  // Function to generate consistent colors for powerplants
+  function getRandomColor(index) {
+    const colors = [
+      'rgba(75, 192, 192, 1)',
+      'rgba(255, 99, 132, 1)',
+      'rgba(255, 205, 86, 1)',
+      'rgba(54, 162, 235, 1)',
+      'rgba(153, 102, 255, 1)',
+      'rgba(255, 159, 64, 1)',
+      'rgba(201, 203, 207, 1)'
+    ];
+    return colors[index % colors.length];
+  }
   
   // Date range functions
   function setDateRange(range) {
@@ -403,16 +389,26 @@
     }
   }
   
+  // Updated function to work with dynamic powerplant data
   function updatePowerplantChart() {
-    const selector = document.getElementById('powerplantSelector');
-    const selectedOptions = Array.from(selector.selectedOptions).map(option => option.value);
+    const checkboxes = document.querySelectorAll('.powerplant-checkbox');
+    const selectedPowerplants = [];
     
-    // Here you would update your chart to show only the selected powerplants
-    console.log('Selected powerplants:', selectedOptions);
+    checkboxes.forEach(checkbox => {
+      if (checkbox.checked) {
+        selectedPowerplants.push(parseInt(checkbox.value));
+      }
+    });
     
-    // For a real implementation, you would modify the chart's datasets
-    // powerplantChart.data.datasets = selectedOptions.map(id => {...});
-    // powerplantChart.update();
+    // Filter datasets based on selected powerplants
+    if (window.powerplantChart) {
+      window.powerplantChart.data.datasets.forEach(dataset => {
+        const powerplantId = dataset.powerplantId;
+        dataset.hidden = !selectedPowerplants.includes(powerplantId);
+      });
+      
+      window.powerplantChart.update();
+    }
   }
 </script>
 {% endblock %}
