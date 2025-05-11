@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% block title %}Admin - Dashboard{% endblock %}
 {% block heading %}Dashboard{% endblock %}
 
@@ -8,7 +9,7 @@
   <!-- Header -->
   <div class="grid grid-cols-1">
     <!-- Top Row with Selectors -->
-    <div class="flex justify-start items-center gap-4 p-4 border-b">
+    <div class="flex justify-between items-center p-4 border-b">
       <!-- Select Powerplant Dropdown -->
       <div class="dropdown dropdown-end">
       <div tabindex="0" role="button" class="btn btn-outline">Select Powerplants</div>
@@ -35,7 +36,7 @@
       <!-- Date Range Picker -->
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-outline flex items-center gap-2">
-          <span class="text-orange-500">Today</span>
+          <span class="text-orange-500">Range</span>
           <span id="dateRangeText">: Apr 25, 2018 12:00 AM - Apr 26, 2018 12:00 AM</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -43,12 +44,7 @@
         </div>
         <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-96">
           <div class="p-2">
-            <div class="flex justify-between mb-2">
-              <button class="btn btn-sm" onclick="setDateRange('today')">Today</button>
-              <button class="btn btn-sm" onclick="setDateRange('yesterday')">Yesterday</button>
-              <button class="btn btn-sm" onclick="setDateRange('week')">This Week</button>
-              <button class="btn btn-sm" onclick="setDateRange('month')">This Month</button>
-            </div>
+            
             <div class="grid grid-cols-2 gap-2">
               <div>
                 <label class="label">Start Date</label>
@@ -86,12 +82,19 @@
           <div class="flex justify-between">
             <h2 class="card-title text-base">Total Power</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">1,000W</p>
+          <p class="text-4xl font-bold mt-2">
+            {% if total_power %}
+              {{ total_power|floatformat:0|intcomma }}W
+            {% else %}
+              0W
+            {% endif %}
+          </p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
         </div>
       </div>
+
 
       <!-- Total Panel Card -->
       <div class="card bg-base-100 shadow-xl">
@@ -99,7 +102,7 @@
           <div class="flex justify-between">
             <h2 class="card-title text-base">Total Panel</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">16</p>
+          <p class="text-4xl font-bold mt-2">0</p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
@@ -112,7 +115,7 @@
           <div class="flex justify-between">
             <h2 class="card-title text-base">Total Reports</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">12</p>
+          <p class="text-4xl font-bold mt-2">0</p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
@@ -125,7 +128,7 @@
           <div class="flex justify-between">
             <h2 class="card-title text-base">Total Unusable panel</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">3</p>
+          <p class="text-4xl font-bold mt-2">0</p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
@@ -145,19 +148,30 @@
         
         <!-- Powerplant Stats -->
         <div class="grid grid-cols-5 gap-4 mb-4">
-            {% for powerplant in powerplants %}
-            <div class="stat bg-base-200 rounded-box p-2">
-                <div class="stat-title">{{ powerplant.name }}</div>
-                <div class="stat-value">200W</div>
-                <div class="stat-desc text-success">+3%</div>
-            </div>
-            {% empty %}
-            <div class="stat bg-base-200 rounded-box p-2">
-                <div class="stat-title">No powerplants</div>
-                <div class="stat-value">0W</div>
-            </div>
-            {% endfor %}
+          {% for powerplant in powerplants %}
+          <div class="stat bg-base-200 rounded-box p-2">
+              <div class="stat-title">{{ powerplant.name }}</div>
+              <div class="stat-value text-xl font-medium">
+                  {% if powerplant.current_power %}
+                      {{ powerplant.current_power }}W
+                  {% else %}
+                      No data
+                  {% endif %}
+              </div>
+              <div class="stat-desc {% if powerplant.power_change > 0 %}text-success{% elif powerplant.power_change < 0 %}text-error{% endif %}">
+                  {% if powerplant.power_change %}
+                      {% if powerplant.power_change > 0 %}+{% endif %}{{ powerplant.power_change }}%
+                  {% endif %}
+              </div>
+          </div>
+          {% empty %}
+          <div class="stat bg-base-200 rounded-box p-2">
+              <div class="stat-title">No powerplants</div>
+              <div class="stat-value text-xl font-medium">No data</div>
+          </div>
+          {% endfor %}
         </div>
+
 
         
         <!-- Powerplant Chart -->
@@ -344,53 +358,6 @@
   }
   
   // Date range functions
-  function setDateRange(range) {
-    const today = new Date();
-    let startDate = new Date();
-    let endDate = new Date();
-    let rangeText = '';
-    
-    // Set time to beginning of day for start date
-    startDate.setHours(0, 0, 0, 0);
-    
-    // Set time to end of day for end date
-    endDate.setHours(23, 59, 59, 999);
-    
-    switch(range) {
-      case 'today':
-        rangeText = 'Today';
-        break;
-      case 'yesterday':
-        startDate.setDate(today.getDate() - 1);
-        endDate.setDate(today.getDate() - 1);
-        rangeText = 'Yesterday';
-        break;
-      case 'week':
-        startDate.setDate(today.getDate() - 7);
-        rangeText = 'This Week';
-        break;
-      case 'month':
-        startDate.setMonth(today.getMonth() - 1);
-        rangeText = 'This Month';
-        break;
-    }
-    
-    // Update date inputs
-    document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
-    document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
-    
-    // Update time inputs
-    document.getElementById('startTime').value = formatTimeForInput(startDate);
-    document.getElementById('endTime').value = formatTimeForInput(endDate);
-    
-    // Format the display text
-    const formattedRange = formatDateRange(startDate, endDate, rangeText);
-    updateDateRangeDisplay(rangeText, formattedRange);
-    
-    // Here you would update your charts with the new date range
-    // updateCharts(startDate, endDate);
-  }
-
   function applyCustomDateRange() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
@@ -409,14 +376,14 @@
       
       // Format the display text
       const formattedRange = formatDateRange(start, end);
-      updateDateRangeDisplay('Custom', formattedRange);
+      updateDateRangeDisplay(formattedRange);
       
       // Here you would update your charts with the new date range
       // updateCharts(start, end);
     }
   }
 
-  function formatDateRange(start, end, rangeText = 'Custom') {
+  function formatDateRange(start, end) {
     // Format dates with time
     const formatDateTime = (date) => {
       return date.toLocaleString('en-US', { 
@@ -432,20 +399,34 @@
     return `${formatDateTime(start)} - ${formatDateTime(end)}`;
   }
 
-  function formatTimeForInput(date) {
-    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-  }
-
-  function updateDateRangeDisplay(rangeLabel, dateRangeText) {
-    const labelElement = document.querySelector('.dropdown-end .btn span:first-child');
-    labelElement.textContent = rangeLabel;
+  function updateDateRangeDisplay(dateRangeText) {
     document.getElementById('dateRangeText').textContent = `: ${dateRangeText}`;
   }
 
-  // Initialize with today's date range
+  // Initialize with default date range
   window.addEventListener('DOMContentLoaded', () => {
-    setDateRange('today');
+    // Set default dates (current day and next day)
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    
+    // Format dates for input fields
+    const formatDateForInput = (date) => {
+      return date.toISOString().split('T')[0];
+    };
+    
+    // Set default values for date inputs
+    document.getElementById('startDate').value = formatDateForInput(today);
+    document.getElementById('endDate').value = formatDateForInput(tomorrow);
+    
+    // Set default times
+    document.getElementById('startTime').value = "00:00";
+    document.getElementById('endTime').value = "00:00";
+    
+    // Apply the default range
+    applyCustomDateRange();
   });
+
 
   
   // Updated function to work with dynamic powerplant data
