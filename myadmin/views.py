@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import ImageUploadForm
 from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, ReportResult, Report, CellEfficiency
+import csv
+import io
+from .forms import CSVUploadForm
 
 # Users & Profile Management
 def users_management(request):
@@ -98,47 +101,29 @@ def create_powerplant(request):
 
 
 # Report Detail
-def report_detail(request, report_result_id):
-    report_result = ReportResult.objects.get(id=report_result_id)
-    zone = report_result.zone
-    x = zone.width
-    y = zone.height
-    zone_data = []
-    sorted_solar_cell_list = SolarCell.objects.order_by('y_position', 'x_position')
-    eff_map = {
-    e.solar_cell_id: e 
-    for e in CellEfficiency.objects.filter(report_result=report_result)}
-
-    cell_efficiencies = [eff_map.get(cell.id) for cell in sorted_solar_cell_list]
-
-    i = 0
-    while i < len(cell_efficiencies):
-        row_list = []
-        for j in range(x):
-            row_list.append({'value': cell_efficiencies[i].efficiency_percentage})
-            i += 1
-        zone_data.append(row_list)
-
-
-    solar_data = [
-        {
-            'row': y,
-            'col': x,
-            'zone_name': zone.name,
-            'zone_data': zone_data
-        },
-        {
-            'row': 4,
-            'col': 1,
-            'zone_name': 'Zone Theo',
-            'zone_data': [
-                [{'label': 'Metric E', 'value': 0.8}],
-                [{'label': 'Metric F', 'value': 0.4}],
-                [{'label': 'Metric G', 'value': 0.2}],
-                [{'label': 'Metric H', 'value': 0.6}]
-            ]
-        },
-    ]
+def report_detail(request, report_id):
+    report = Report.objects.get(id=report_id)
+    report_result_list = ReportResult.objects.filter(report=report)
+    solar_data = []
+    for report_result in report_result_list:
+        zone = report_result.zone
+        x = zone.width
+        y = zone.height
+        zone_data = []
+        sorted_solar_cell_list = SolarCell.objects.filter(zone=zone).order_by('y_position', 'x_position')
+        eff_map = {
+        e.solar_cell_id: e 
+        for e in CellEfficiency.objects.filter(report_result=report_result)}
+        cell_efficiencies = [eff_map.get(cell.id) for cell in sorted_solar_cell_list]
+        print(cell_efficiencies)
+        i = 0
+        while i < len(cell_efficiencies):
+            row_list = []
+            for j in range(x):
+                row_list.append({'value': cell_efficiencies[i].efficiency_percentage})
+                i += 1
+            zone_data.append(row_list)
+        solar_data.append({'row': y, 'col': x, 'zone_name': zone.name, 'zone_data': zone_data})
 
     for zone in solar_data:
         for row in zone['zone_data']:
@@ -152,6 +137,35 @@ def report_detail(request, report_result_id):
         'solar_data': solar_data
     }
     return render(request, 'report_detail.html', context)
+
+def report_upload(request):
+    if request.method == 'POST':
+        form = CSVUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['csv_file']
+
+            if not csv_file.name.endswith('.csv'):
+                return render(request, 'upload.html', {'form': form, 'error': 'File is not CSV'})
+
+            decoded_file = csv_file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+
+            for row in reader:
+                
+                x_pos = int(row['x_pos'])
+                y_pos = int(row['y_pos'])
+                solar = SolarCell.objects.filter(zone_id='1',x_position=x_pos, y_position=y_pos)
+                CellEfficiency.objects.create(
+                    efficiency_percentage = row['efficiency'],
+                    report_result_id = 1,
+                    solar_cell_id = solar.id
+                )
+
+            return redirect('success_page')  # Change this as needed
+    else:
+        form = CSVUploadForm()
+    return render(request, 'upload.html', {'form': form})
 
 
 # Helper
