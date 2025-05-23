@@ -65,7 +65,7 @@ class Report(models.Model):
     energy_generated = models.FloatField()
 
     def __str__(self):
-        return self.powerplant.name
+        return f"{self.powerplant.name} Report #{self.id}"
 
 
 class ReportResult(models.Model):
@@ -73,12 +73,15 @@ class ReportResult(models.Model):
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Report of {self.zone.name} when {self.report.createdAt}"
+        return f"Report of {self.zone.name} when {self.report.createdAt} of {self.report}"
 
 class CellEfficiency(models.Model):
     report_result = models.ForeignKey(ReportResult, on_delete=models.CASCADE, related_name="cell_efficiency")
     solar_cell = models.ForeignKey(SolarCell,on_delete=models.CASCADE, related_name="cell_efficiency")
     efficiency_percentage = models.FloatField()
+
+    def __str__(self):
+        return f"Cell of {self.solar_cell} for {self.report_result} "
 
 class ImageUpload(models.Model):
     image = models.ImageField(upload_to='uploads/')

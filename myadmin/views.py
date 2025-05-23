@@ -100,6 +100,17 @@ def create_powerplant(request):
     })
 
 
+# Helper
+def get_color(value):
+    if value >= 0.75:
+        return 'bg-100-color'
+    elif value >= 0.5:
+        return 'bg-75-color'
+    elif value >= 0.25:
+        return 'bg-50-color'
+    else:
+        return 'bg-25-color'
+
 # Report Detail
 def report_detail(request, report_id):
     report = Report.objects.get(id=report_id)
@@ -145,7 +156,7 @@ def report_upload(request):
             csv_file = request.FILES['csv_file']
 
             if not csv_file.name.endswith('.csv'):
-                return render(request, 'upload.html', {'form': form, 'error': 'File is not CSV'})
+                return render(request, 'upload_report.html', {'form': form, 'error': 'File is not CSV'})
 
             decoded_file = csv_file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
@@ -155,26 +166,18 @@ def report_upload(request):
                 
                 x_pos = int(row['x_pos'])
                 y_pos = int(row['y_pos'])
-                solar = SolarCell.objects.filter(zone_id='1',x_position=x_pos, y_position=y_pos)
+                try:
+                    solar = SolarCell.objects.get(zone_id='1', x_position=x_pos, y_position=y_pos)
+                except SolarCell.DoesNotExist:
+                    continue  # or handle it
+
                 CellEfficiency.objects.create(
-                    efficiency_percentage = row['efficiency'],
-                    report_result_id = 1,
+                    efficiency_percentage = float(row['efficiency']),
+                    report_result_id = 3,
                     solar_cell_id = solar.id
                 )
 
-            return redirect('success_page')  # Change this as needed
+            return redirect('dashboard')  # Change this as needed
     else:
         form = CSVUploadForm()
-    return render(request, 'upload.html', {'form': form})
-
-
-# Helper
-def get_color(value):
-    if value >= 0.75:
-        return 'bg-100-color'
-    elif value >= 0.5:
-        return 'bg-75-color'
-    elif value >= 0.25:
-        return 'bg-50-color'
-    else:
-        return 'bg-25-color'
+    return render(request, 'upload_report.html', {'form': form})

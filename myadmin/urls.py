@@ -17,5 +17,5 @@ urlpatterns = [
     path('report_detail/<int:report_id>/', views.report_detail, name='report_detail'),
     path('upload_history/', views.upload, name='upload_history'),
     path('get_zones/<int:powerplant_id>/', views.get_zones, name='get_zones'),
-    path('report_upload', views.report_upload, name='report_upload'),
+    path('report_upload/', views.report_upload, name='report_upload'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
