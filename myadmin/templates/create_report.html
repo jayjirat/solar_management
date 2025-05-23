@@ -1,0 +1,17 @@
+{% extends 'base.html' %} {% block title %}Admin - Users Management{% endblock%}
+{% block heading %}Reports{% endblock %} {% block content %}
+<div class="text-xl font-bold">Create Report</div>
+<br>
+<form method="POST">
+  {% csrf_token %}
+  <div class="mb-4">
+    {{ form.powerplant.label_tag }}
+    {{ form.powerplant }}
+  </div>
+  <div class="mb-4">
+    {{ form.energy_generated.label_tag }}
+    {{ form.energy_generated }}
+  </div>
+  <button type="submit" class="btn btn-primary">Submit Report</button>
+</form>
+{% endblock%}

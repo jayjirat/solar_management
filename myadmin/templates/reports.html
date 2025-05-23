@@ -18,7 +18,7 @@
                 <th>Reporter</th>
                 <th>Total Power</th>
                 <th>Uploaded Date</th>
-                <th>View Detail</th>
+                <th>Report Detail</th>
             </tr>
         </thead>
         <tbody>
@@ -29,11 +29,19 @@
                 <td>{{ report.reporter.display_name }}</td>
                 <td>{{ report.energy_generated }}</td>
                 <td>{{ report.createdAt }}</td>
+                {% if report.has_result %}
                 <td>
                     <a href="{% url 'report_detail' report.id %}" class="btn btn-info btn-sm">
                         View Detail
                     </a>
                 </td>
+                {% else %}
+                <td>
+                    <a href="{% url 'report_upload' report.id %}" class="btn btn-warning btn-sm">
+                        Upload Detail
+                    </a>
+                </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
@@ -78,5 +86,5 @@
     </div>
 
 </div>
-  </div>
+</div>
 {% endblock%}

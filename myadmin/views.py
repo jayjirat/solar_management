@@ -2,12 +2,13 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-
-from .forms import ImageUploadForm
+from django.db.models import Exists, OuterRef
+from .forms import ImageUploadForm, CSVUploadForm, ReportForm
 from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, ReportResult, Report, CellEfficiency
 import csv
 import io
-from .forms import CSVUploadForm
+from authentication.models import CustomUser
+
 
 # Users & Profile Management
 def users_management(request):
@@ -40,7 +41,11 @@ def solar(request):
     return render(request, 'solar_management.html')
 
 def reports(request):
-    reports = Report.objects.select_related('powerplant', 'reporter__user')
+    reports = Report.objects.select_related('powerplant', 'reporter__user').annotate(
+        has_result=Exists(
+            ReportResult.objects.filter(report=OuterRef('pk'))
+        )
+    )
     paginator = Paginator(reports, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -154,15 +159,32 @@ def report_detail(request, report_id):
     }
     return render(request, 'report_detail.html', context)
 
+def create_report(request):
+    try:
+        custom_user = CustomUser.objects.get(user=request.user)
+        if request.method == 'POST':
+            form = ReportForm(request.POST)
+            if form.is_valid():
+                report = form.save(commit=False)
+                report.reporter = custom_user
+                report.save()
+                return redirect('reports')  
+        else:
+            form = ReportForm()
+        return render(request, 'create_report.html', {'form': form})
+    except CustomUser.DoesNotExist:
+        return render(request, 'errors/missing_profile.html', status=404)
+
 def report_upload(request):
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            csv_file = request.FILES['csv_file']
+
+            csv_file = form.cleaned_data['csv_file']
 
             if not csv_file.name.endswith('.csv'):
                 return render(request, 'upload_report.html', {'form': form, 'error': 'File is not CSV'})
-
+            
             decoded_file = csv_file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
@@ -174,7 +196,7 @@ def report_upload(request):
                 try:
                     solar = SolarCell.objects.get(zone_id='1', x_position=x_pos, y_position=y_pos)
                 except SolarCell.DoesNotExist:
-                    continue  # or handle it
+                    continue # write handle
 
                 CellEfficiency.objects.create(
                     efficiency_percentage = float(row['efficiency']),

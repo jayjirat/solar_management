@@ -15,7 +15,7 @@ class RoleEnum(Enum):
 
 # Create your models here.
 class CustomUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='custom')
     role = models.CharField(
         max_length=20,
         choices=[(tag.value[0], tag.value[1]) for tag in RoleEnum],
