@@ -193,40 +193,42 @@
           <div class="form-control">
             <select class="select select-bordered w-full max-w-xs">
               <option disabled selected>Select Powerplant</option>
-              <option>Powerplant 1</option>
-              <option>Powerplant 2</option>
-              <option>Powerplant 3</option>
-              <option>Powerplant 4</option>
-              <option>Powerplant 5</option>
+              {% if powerplants %}
+                {% for powerplant in powerplants %}
+                  <option value="{{ powerplant.id }}">{{ powerplant.name }}</option>
+                {% endfor %}
+              {% else %}
+                <option disabled>No powerplants available</option>
+              {% endif %}
             </select>
           </div>
           
           <div class="form-control">
-            <select class="select select-bordered w-full max-w-xs">
-              <option disabled selected>Select Zone</option>
-              <option>Zone 1</option>
-              <option>Zone 2</option>
-              <option>Zone 3</option>
+            <select class="select select-bordered w-full max-w-xs" multiple>
+              <option disabled>Select Zones</option>
+              {% if zones %}
+                {% for zone in zones %}
+                  <option value="{{ zone.id }}">{{ zone.name }}</option>
+                {% endfor %}
+              {% else %}
+                <option disabled>No zones available</option>
+              {% endif %}
             </select>
           </div>
-          
+
           <div class="form-control">
-            <select class="select select-bordered w-full max-w-xs">
-              <option disabled selected>Select Panel</option>
-              <option>Panel 1</option>
-              <option>Panel 2</option>
-              <option>Panel 3</option>
+            <select class="select select-bordered w-full max-w-xs" multiple>
+              <option disabled>Select Panels</option>
+              {% if panels %}
+                {% for panel in panels %}
+                  <option value="{{ panel.id }}">{{ panel.name }}</option>
+                {% endfor %}
+              {% else %}
+                <option disabled>No panels available</option>
+              {% endif %}
             </select>
           </div>
-          
-          <div class="form-control">
-            <select class="select select-bordered w-full max-w-xs">
-              <option>Day</option>
-              <option>Week</option>
-              <option>Month</option>
-            </select>
-          </div>
-        </div>
+
         
         <!-- Hourly Chart -->
         <div class="w-full h-64">
