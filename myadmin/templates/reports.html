@@ -4,8 +4,9 @@
     <div class="flex flex-col">
         <div class="text-xl font-bold">Report</div>
     </div>
-    <div>
+    <div class="flex gap-4">
         <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
+        <a href="#" class="btn btn-soft btn-ghost">Upload Report</a>
     </div>
 </div>
 <div class="overflow-x-auto overflow-y-auto mt-8" style="max-height: calc(100% - 80px)">
@@ -22,34 +23,6 @@
             </tr>
         </thead>
         <tbody>
-            <!-- row 1 -->
-
-            <!-- row 2 -->
-            <tr class="hover:bg-base-300">
-                <td>1</td>
-                <td>PP1_25FEB2025</td>
-                <td>jayyyy2257</td>
-                <td>220</td>
-                <td>
-                    25/02/68
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-info">View Detail</button>
-                </td>
-            </tr>
-
-            <tr class="hover:bg-base-300">
-                <td>1</td>
-                <td>PP1_24FEB2025</td>
-                <td>melnyks</td>
-                <td>220</td>
-                <td>
-                    25/02/68
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-info">View Detail</button>
-                </td>
-            </tr>
 
             <tr class="hover:bg-base-300">
                 <td>2</td>
@@ -60,7 +33,7 @@
                     25/02/68
                 </td>
                 <td>
-                    <button class="btn btn-soft btn-info">View Detail</button>
+                    <a href="{% url 'reports_detail' report_id=2 %}" class="btn btn-soft btn-info">View Detail</a>
                 </td>
             </tr>
 
