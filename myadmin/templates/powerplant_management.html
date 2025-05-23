@@ -1,12 +1,13 @@
 {% extends 'base.html' %} {% block title %}Admin - Solar Management{% endblock%}
-{% block heading %}Solar Management{% endblock %} {% block content %}
+{% block heading %}Powerplant Management{% endblock %} {% block content %}
 <div class="flex flex-row justify-between">
     <div class="flex flex-col">
-        <div class="text-xl font-bold">Solar Plants</div>
+        <div class="text-xl font-bold">Powerplant Management</div>
         <div class="text-sm text-teal-400">Active Members</div>
     </div>
-    <div>
+    <div class="flex gap-4">
         <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
+        <a href="#" class="btn btn-soft btn-ghost">Create Powerplant</a>
     </div>
 </div>
 <div class="overflow-x-auto overflow-y-auto mt-8" style="max-height: calc(100% - 80px)">

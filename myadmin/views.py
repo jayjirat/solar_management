@@ -28,7 +28,7 @@ def dashboard(request):
 
 
 def solar(request):
-    return render(request, 'solar_management.html')
+    return render(request, 'powerplant_management.html')
 
 
 def upload(request):
@@ -37,6 +37,9 @@ def upload(request):
 
 def reports(request):
     return render(request, 'reports.html')
+
+def reports_detail(request,report_id):
+    return render(request, 'reports_detail.html',{'report_id':report_id})
 
 def profile(request):
     return render(request, 'profile.html')
