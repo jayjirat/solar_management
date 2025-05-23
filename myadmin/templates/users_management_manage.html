@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage - {{ customuser.user.username }}{% endblock %}
+{% block heading %}Manage User{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center ">
+    <div class="p-8 rounded-lg w-full max-w-xl">
+        <h2 class="text-2xl font-bold text-center mb-6">
+            {{ customuser.user.first_name }} {{ customuser.user.last_name }}
+        </h2>
+
+        <form method="POST" class="flex flex-col gap-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block font-semibold mb-1">Username</label>
+                <input type="text" class="input input-bordered w-full"
+                    value="{{ customuser.user.first_name }} {{ customuser.user.last_name }}" disabled>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1">Email</label>
+                <input type="email" class="input input-bordered w-full" value="{{ customuser.user.email }}" disabled>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1">Role</label>
+                <select name="role" class="select select-bordered w-full">
+                    {% for value, label in roles %}
+                    <option value="{{ value }}" {% if customuser.role == value %}selected{% endif %}>{{ label }}</option>
+
+
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1">Status</label>
+                <select name="status" class="select select-bordered w-full">
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if customuser.status == value %}selected{% endif %}>{{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex justify-end mt-6 gap-4">
+                <a href="{% url 'users_management' %}" class="btn">Back</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,14 +1,30 @@
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-
+from django.shortcuts import redirect, render, redirect, get_object_or_404
+from authentication.models import CustomUser
 from .forms import ImageUploadForm
 from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser
 
 # Users & Profile Management
 def users_management(request):
-    return render(request, 'users_management.html')
+    users = CustomUser.objects.all()
+    context = {'users': users}
+    return render(request, 'users_management.html',context=context)
 
+def users_management_manage(request,user_id):
+    customuser = CustomUser.objects.get(id=user_id)
+
+    if request.method == 'POST':
+        customuser.role = request.POST.get('role')
+        customuser.status = request.POST.get('status')
+        customuser.save()
+        return redirect('users_management')
+
+    return render(request, 'users_management_manage.html', {
+        'customuser': customuser,
+        'roles': [('admin', 'Admin'), ('data_analyst', 'Data Analyst'),('drone_controller', 'Drone Controller')],
+        'statuses': [('active', 'Active'), ('inactive', 'Inactive')],
+    })
 def profile(request):
     return render(request, 'profile.html')
 
@@ -41,8 +57,16 @@ def dashboard(request):
 def solar(request):
     return render(request, 'solar_management.html')
 
+
+def upload(request):
+    return render(request, 'upload_history.html')
+
+
 def reports(request):
     return render(request, 'reports.html')
+
+def reports_detail(request,report_id):
+    return render(request, 'reports_detail.html',{'report_id':report_id})
 
 
 # Upload Images
