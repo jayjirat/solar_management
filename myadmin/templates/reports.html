@@ -13,59 +13,70 @@
         <!-- head -->
         <thead>
             <tr>
-                <th>Powerplant</th>
+                <th>Report ID</th>
                 <th>Name</th>
                 <th>Reporter</th>
                 <th>Total Power</th>
                 <th>Uploaded Date</th>
-                <th></th>
+                <th>View Detail</th>
             </tr>
         </thead>
         <tbody>
-            <!-- row 1 -->
-
-            <!-- row 2 -->
-            <tr class="hover:bg-base-300">
-                <td>1</td>
-                <td>PP1_25FEB2025</td>
-                <td>jayyyy2257</td>
-                <td>220</td>
+            {% for report in page_obj %}
+            <tr>
+                <td>{{ report.id }}</td>
+                <td>{{ report.powerplant.name }}</td>
+                <td>{{ report.reporter.display_name }}</td>
+                <td>{{ report.energy_generated }}</td>
+                <td>{{ report.createdAt }}</td>
                 <td>
-                    25/02/68
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-info">View Detail</button>
+                    <a href="{% url 'report_detail' report.id %}" class="btn btn-info btn-sm">
+                        View Detail
+                    </a>
                 </td>
             </tr>
-
-            <tr class="hover:bg-base-300">
-                <td>1</td>
-                <td>PP1_24FEB2025</td>
-                <td>melnyks</td>
-                <td>220</td>
-                <td>
-                    25/02/68
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-info">View Detail</button>
-                </td>
-            </tr>
-
-            <tr class="hover:bg-base-300">
-                <td>2</td>
-                <td>PP1_23FEB2025</td>
-                <td>yuutoutopia</td>
-                <td>120</td>
-                <td>
-                    25/02/68
-                </td>
-                <td>
-                    <button class="btn btn-soft btn-info">View Detail</button>
-                </td>
-            </tr>
-
-
+            {% endfor %}
         </tbody>
     </table>
+    <div class="flex items-center justify-between">
+    <div class="text-left">
+        <div class="text-center text-sm text-gray-500 mt-2">
+            Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} —
+            {{ page_obj|length }} reports on this page,
+            out of {{ page_obj.paginator.count }} total reports.
+        </div>
+  </div>
+  <div class="text-right">
+    </div>
+
+    <div class="flex justify-center mt-4">
+        <div class="join">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">&lt;</a>
+        {% else %}
+        <button class="join-item btn btn-sm btn-disabled">&lt;</button>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+            <button class="join-item btn btn-sm btn-active">{{ num }}</button>
+        {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+            <a href="?page={{ num }}" class="join-item btn btn-sm">{{ num }}</a>
+        {% elif num == 1 or num == page_obj.paginator.num_pages %}
+            <a href="?page={{ num }}" class="join-item btn btn-sm">{{ num }}</a>
+        {% elif forloop.last or forloop.first %}
+            <span class="join-item btn btn-sm btn-disabled">...</span>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">&gt;</a>
+        {% else %}
+        <button class="join-item btn btn-sm btn-disabled">&gt;</button>
+        {% endif %}
+        </div>
+    </div>
+
 </div>
+  </div>
 {% endblock%}

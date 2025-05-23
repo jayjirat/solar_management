@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator
 
 from .forms import ImageUploadForm
 from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, ReportResult, Report, CellEfficiency
@@ -39,11 +40,11 @@ def solar(request):
     return render(request, 'solar_management.html')
 
 def reports(request):
-    reports = Report.objects.select_related('powerplant')
-    data = {
-        'reports' : reports
-    }
-    return render(request, 'reports.html', data)
+    reports = Report.objects.select_related('powerplant', 'reporter__user')
+    paginator = Paginator(reports, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'reports.html', {'page_obj': page_obj})
 
 
 # Upload Images
