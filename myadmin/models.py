@@ -63,6 +63,7 @@ class Report(models.Model):
     createdAt = models.DateField(auto_now_add=True)
     updatedAt = models.DateField(auto_now=True)
     energy_generated = models.FloatField()
+    reporter = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return f"{self.powerplant.name} Report #{self.id}"

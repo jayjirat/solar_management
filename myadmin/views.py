@@ -39,7 +39,11 @@ def solar(request):
     return render(request, 'solar_management.html')
 
 def reports(request):
-    return render(request, 'reports.html')
+    reports = Report.objects.select_related('powerplant')
+    data = {
+        'reports' : reports
+    }
+    return render(request, 'reports.html', data)
 
 
 # Upload Images
