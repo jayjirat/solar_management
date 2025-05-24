@@ -8,7 +8,7 @@ from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, Report
 import csv
 import io
 from authentication.models import CustomUser
-
+from myadmin.decorators import role_required
 
 # Users & Profile Management
 def users_management(request):
@@ -56,6 +56,7 @@ def reports(request):
 
 
 # Upload Images
+@role_required('admin', 'superadmin', 'data_analyst')
 def upload(request):
     powerplants = PowerPlant.objects.all()
     zones = Zone.objects.all()
@@ -125,6 +126,7 @@ def get_color(value):
         return 'bg-25-color'
 
 # Report Detail
+@role_required('admin', 'superadmin', 'data_analyst')
 def report_detail(request, report_id):
     report = Report.objects.get(id=report_id)
     report_result_list = ReportResult.objects.filter(report=report)
@@ -165,6 +167,7 @@ def report_detail(request, report_id):
     }
     return render(request, 'report_detail.html', context)
 
+@role_required('admin', 'superadmin', 'data_analyst')
 def create_report(request):
     try:
         custom_user = CustomUser.objects.get(user=request.user)
@@ -181,6 +184,7 @@ def create_report(request):
     except CustomUser.DoesNotExist:
         return render(request, 'errors/missing_profile.html', status=404)
 
+@role_required('admin', 'superadmin', 'data_analyst')
 def report_upload(request, report_id):
     report = get_object_or_404(Report, id=report_id)
     powerplant = report.powerplant
