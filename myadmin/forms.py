@@ -1,7 +1,7 @@
 # forms.py
 from django import forms
 from .models import ImageUpload, Zone, PowerPlant, Report
-
+from authentication import models
 class ImageUploadForm(forms.ModelForm):
     class Meta:
         model = ImageUpload
@@ -15,6 +15,17 @@ class ReportForm(forms.ModelForm):
             'powerplant': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'energy_generated': forms.NumberInput(attrs={'class': 'input input-bordered w-full'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # 🔹 Grab the user from kwargs
+        super().__init__(*args, **kwargs)
+
+        if user and hasattr(user, 'custom'):
+            self.fields['powerplant'].queryset = PowerPlant.objects.filter(
+                models.Q(admin=user.custom) | models.Q(data_analyst=user.custom)
+            ).distinct()
+        else:
+            self.fields['powerplant'].queryset = PowerPlant.objects.none()  # No access
 
 class CSVUploadForm(forms.Form):
     csv_file = forms.FileField(

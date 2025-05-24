@@ -172,7 +172,7 @@ def create_report(request):
     try:
         custom_user = CustomUser.objects.get(user=request.user)
         if request.method == 'POST':
-            form = ReportForm(request.POST)
+            form = ReportForm(request.POST, user=request.user)
             if form.is_valid():
                 report = form.save(commit=False)
                 report.reporter = custom_user
