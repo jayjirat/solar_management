@@ -42,17 +42,37 @@ def solar(request):
 
 def reports(request):
     query = request.GET.get('q', '')
+    user = request.user
+    custom_user = getattr(user, 'custom', None)
+
+    # Base queryset with annotation
     reports = Report.objects.select_related('powerplant', 'reporter__user').annotate(
         has_result=Exists(
             ReportResult.objects.filter(report=OuterRef('pk'))
         )
     )
+
+    # Only filter if not superadmin
+    if custom_user and custom_user.role != 'superadmin':
+        reports = reports.filter(
+            Q(powerplant__admin=custom_user) |
+            Q(powerplant__data_analyst=custom_user) |
+            Q(powerplant__drone_controller=custom_user)
+        ).distinct()
+
+    # Apply search filter
     if query:
-        reports = reports.filter(Q(powerplant__name__icontains=query) | Q(id__icontains=query))
+        reports = reports.filter(
+            Q(powerplant__name__icontains=query) |
+            Q(id__icontains=query)
+        )
+
+    # Paginate results
     paginator = Paginator(reports, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'reports.html', {'page_obj': page_obj, 'query': query,})
+
+    return render(request, 'reports.html', {'page_obj': page_obj, 'query': query})
 
 
 # Upload Images
