@@ -19,5 +19,5 @@ class ReportForm(forms.ModelForm):
 class CSVUploadForm(forms.Form):
     csv_file = forms.FileField(
         label="Upload CSV File",
-        widget=forms.FileInput(attrs={"class": "file-input file-input-bordered w-full"})
+        widget=forms.FileInput(attrs={"class": "file-input file-input-bordered w-full mt-4"})
     )

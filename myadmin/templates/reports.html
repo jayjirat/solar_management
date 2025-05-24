@@ -1,16 +1,29 @@
 {% extends 'base.html' %} {% block title %}Admin - Users Management{% endblock%}
-{% block heading %}Reports{% endblock %} {% block content %}
+{% block heading %}
+    Reports
+
+    <a href="{% url 'create_report' %}" class="btn btn-warning btn-l ml-4">
+                        Create New Report
+    </a>
+{% endblock %} 
+
+{% block content %}
 <div class="flex flex-row justify-between">
     <div class="flex flex-col">
         <div class="text-xl font-bold">Report</div>
     </div>
-    {% comment %} <div>
-        <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
-    </div> {% endcomment %}
-    <form method="get">
-        <input type="text" name="q" placeholder="Search..." value="{{ query }}">
-        <button type="submit">Search</button>
-    </form>
+    <form method="get" class="flex items-center gap-2">
+    <input 
+        type="text" 
+        name="q" 
+        placeholder="Search..." 
+        value="{{ query }}" 
+        class="input input-bordered w-full max-w-xs"
+    />
+    <button type="submit" class="btn btn-primary">
+        Search
+    </button>
+</form>
 </div>
 <div class="overflow-x-auto overflow-y-auto mt-8" style="max-height: calc(100% - 80px)">
     <table class="table">
@@ -88,7 +101,6 @@
         {% endif %}
         </div>
     </div>
-
 </div>
 </div>
 {% endblock%}
