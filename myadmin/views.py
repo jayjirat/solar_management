@@ -156,9 +156,12 @@ def report_detail(request, report_id):
         zone['row_range'] = range(zone['row'])
         zone['val_range'] = range(zone['col'])
 
+    powerplant = report.powerplant
     context = {
         'zone_amount': len(solar_data),
-        'solar_data': solar_data
+        'solar_data': solar_data,
+        'report': report,
+        'powerplant': powerplant,
     }
     return render(request, 'report_detail.html', context)
 
