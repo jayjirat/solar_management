@@ -2,7 +2,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q
 from .forms import ImageUploadForm, CSVUploadForm, ReportForm
 from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, ReportResult, Report, CellEfficiency
 import csv
@@ -41,15 +41,18 @@ def solar(request):
     return render(request, 'solar_management.html')
 
 def reports(request):
+    query = request.GET.get('q', '')
     reports = Report.objects.select_related('powerplant', 'reporter__user').annotate(
         has_result=Exists(
             ReportResult.objects.filter(report=OuterRef('pk'))
         )
     )
+    if query:
+        reports = reports.filter(Q(powerplant__name__icontains=query) | Q(id__icontains=query))
     paginator = Paginator(reports, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'reports.html', {'page_obj': page_obj})
+    return render(request, 'reports.html', {'page_obj': page_obj, 'query': query,})
 
 
 # Upload Images
@@ -175,7 +178,10 @@ def create_report(request):
     except CustomUser.DoesNotExist:
         return render(request, 'errors/missing_profile.html', status=404)
 
-def report_upload(request):
+def report_upload(request, report_id):
+    report = get_object_or_404(Report, id=report_id)
+    powerplant = report.powerplant
+    zones = Zone.objects.filter(powerplant=powerplant)
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -188,23 +194,40 @@ def report_upload(request):
             decoded_file = csv_file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
-
+            for zone in zones:
+                ReportResult.objects.create(
+                    report = report,
+                    zone = zone,
+                )
             for row in reader:
-                
+                zone_name = row['zone_name']
                 x_pos = int(row['x_pos'])
                 y_pos = int(row['y_pos'])
                 try:
-                    solar = SolarCell.objects.get(zone_id='1', x_position=x_pos, y_position=y_pos)
+                    zone_id = Zone.objects.get(powerplant=powerplant, name=zone_name)
+                    report_result = ReportResult.objects.get(report=report, zone_id=zone_id)
+                    solar = SolarCell.objects.get(zone_id=zone_id, x_position=x_pos, y_position=y_pos)
+                except Zone.DoesNotExist:
+                    continue
                 except SolarCell.DoesNotExist:
                     continue # write handle
+                except:
+                    continue
 
                 CellEfficiency.objects.create(
                     efficiency_percentage = float(row['efficiency']),
-                    report_result_id = 3,
+                    report_result = report_result,
                     solar_cell_id = solar.id
                 )
 
             return redirect('dashboard')  # Change this as needed
     else:
         form = CSVUploadForm()
-    return render(request, 'upload_report.html', {'form': form})
+
+    context = {
+        'form': form,
+        'zones': zones,
+        'report': report,
+        'powerplant': powerplant,
+    }
+    return render(request, 'upload_report.html', context)
