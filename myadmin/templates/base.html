@@ -64,7 +64,7 @@
             </li>
             <li class="py-2">
               <a href="{% url 'users_management' %}"
-                class="flex items-center {% if request.path == '/solar-system/users_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">
+                class="flex items-center {% if '/solar-system/users_management' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -75,7 +75,7 @@
             </li>
             <li class="py-2">
               <a href="{% url 'solar_management' %}"
-                class="flex items-center {% if request.path == '/solar-system/solar_management/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">
+                class="flex items-center {% if '/solar-system/solar_management/' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -97,7 +97,7 @@
             </li>
             <li class="py-2">
               <a href="{% url 'reports' %}"
-                class="flex items-center {% if request.path == '/solar-system/reports/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">
+                class="flex items-center {% if request.path == '/solar-system/reports/' or '/solar-system/report_detail/' in request.path or '/solar-system/report_upload/' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
