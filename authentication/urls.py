@@ -1,9 +1,8 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
 from .views import ThammasatLoginAPI, tu_login_page
 from .views import LoginView, login_view, LogoutView, SendOTPView, VerifyOTPView
 from rest_framework_simplejwt.views import TokenRefreshView
-from myadmin.views import dashboard
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -23,5 +22,5 @@ urlpatterns = [
     # path('login/facebook/callback/', views.facebook_callback, name='facebook_callback'),  
     path("api/login/tu/", ThammasatLoginAPI.as_view(), name="tu-login"),
     path("login/tu/", tu_login_page, name="tu-login-page"),
-    path("solar-system/dashboard",dashboard,name="solar-dashboard"),
+    path('solar-system/dashboard', include('myadmin.urls')),
 ]

@@ -8,6 +8,10 @@ from .models import PowerPlant, Zone, ImageUpload, SolarCell, ReportResult, Repo
 import csv
 import io
 from authentication.models import CustomUser
+from .forms import ImageUploadForm
+from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, Report
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 from myadmin.decorators import role_required
 
 # Users & Profile Management
@@ -51,7 +55,33 @@ def upload_profile_image(request):
 
 # Dashboard & Management Pages
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    powerplants = PowerPlant.objects.all()
+
+    # Build a dictionary of all powerplant data
+    powerplant_data = []
+
+    for plant in powerplants:
+        reports = Report.objects.filter(powerplant=plant).order_by('createdAt')
+        report_data = [
+            {
+                "date": r.createdAt.strftime("%Y-%m-%d"),
+                "energy": r.energy_generated
+            }
+            for r in reports
+        ]
+
+        powerplant_data.append({
+            "id": plant.id,
+            "name": plant.name,
+            "zone": plant.zone.name if hasattr(plant, 'zone') else "",
+            "panel": plant.panel.name if hasattr(plant, 'panel') else "",
+            "reports": report_data
+        })
+
+    return render(request, 'dashboard.html', {
+        "powerplants": powerplants,
+        "powerplant_json": json.dumps(powerplant_data, cls=DjangoJSONEncoder)
+    })
 
 def solar(request):
     return render(request, 'solar_management.html')
