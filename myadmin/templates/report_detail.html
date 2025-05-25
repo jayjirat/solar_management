@@ -23,33 +23,33 @@
       <div class="grid gap-2">
         <div class="flex justify-start gap-x-4">
           <span class="font-semibold">Power Plant :</span>
-          <span>Power Plant 1</span>
+          <span>{{powerplant.name}}</span>
         </div>
         <div class="flex justify-start gap-x-4">
           <span class="font-semibold">Name:</span>
-          <span>PPI_25FEB2025</span>
+          <span>{{report}}</span>
         </div>
         <div class="flex justify-start gap-x-4">
           <span class="font-semibold">Reporter :</span>
-          <span>jayyyy2257</span>
+          <span>{{report.reporter.display_name}}</span>
         </div>
         <div class="flex justify-start gap-x-4">
           <span class="font-semibold">Created Date:</span>
-          <span>20/02/2568</span>
+          <span>{{report.createdAt}}</span>
         </div>
         <div class="flex justify-start gap-x-4">
           <span class="font-semibold">Uploaded Date:</span>
-          <span>25/02/2568</span>
+          <span>{{ report.updatedAt }}</span>
         </div>
       </div>
     </div>
 </div>
 
-<h1 class="text-3xl font-semibold leading-tight mt-4 mx-6"> Results </h1>
+<h1 class="text-3xl font-semibold leading-tight mt-4 mx-4"> Results </h1>
 
 {% for zone in solar_data %}
-  <h2 class="font-bold">{{ zone.zone_name }}</h2>
-  <p>Row: {{ zone.row }}, Column: {{ zone.col }}</p>
+  <h2 class="font-bold my-1 ml-4">Zone: {{ zone.zone_name }}</h2>
+  <p class="ml-4 mb-2">Row: {{ zone.row }}, Column: {{ zone.col }}</p>
       <div class="p-4 border rounded shadow max-w-full overflow-x-auto">
         {% for row in zone.zone_data %}
         <div class="flex space-x-1 mb-1">
