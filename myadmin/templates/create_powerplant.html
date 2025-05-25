@@ -15,7 +15,9 @@
     <!-- Left Column - Form Inputs -->
     <div class="flex-1 ml-5 mr-5">
       <div class="mb-4">
-        <label for="plantName" class="block text-sm mb-1">Name</label>
+        <label for="plantName" class="block text-sm mb-1"
+          >Power Plant Name</label
+        >
         <input
           type="text"
           name="name"
@@ -41,6 +43,55 @@
       <!-- Hidden latitude and longitude fields -->
       <input type="hidden" id="latitude" name="latitude" />
       <input type="hidden" id="longitude" name="longitude" />
+
+      <!-- Zone Input Section -->
+      <div class="mt-8 border-t pt-6">
+        {% comment %}
+        <h4 class="text-lg font-semibold mb-4">Initial Zone Setup</h4>
+        {% endcomment %}
+
+        <div class="mb-4">
+          <label for="zoneName" class="block text-sm mb-1">Zone Name</label>
+          <input
+            type="text"
+            name="zone_name"
+            id="zoneName"
+            class="input input-bordered w-full"
+            placeholder="Enter zone name"
+            required
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="zoneRows" class="block text-sm mb-1"
+              >Number of Rows</label
+            >
+            <input
+              type="number"
+              name="zone_height"
+              id="zoneRows"
+              class="input input-bordered w-full"
+              min="1"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="zoneCols" class="block text-sm mb-1"
+              >Number of Columns</label
+            >
+            <input
+              type="number"
+              name="zone_width"
+              id="zoneCols"
+              class="input input-bordered w-full"
+              min="1"
+              required
+            />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Right Column - Search, Map, and Create Button -->

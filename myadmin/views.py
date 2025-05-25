@@ -234,6 +234,10 @@ def create_powerplant(request):
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
 
+        zone_name = request.POST.get('zone_name')
+        height = request.POST.get('zone_height')
+        width = request.POST.get('zone_width')
+
         if name and latitude and longitude:
             PowerPlant.objects.create(
                 name=name,
@@ -241,6 +245,15 @@ def create_powerplant(request):
                 longitude=float(longitude),
                 total_tasks=0
             )
+            # Create Zone if all fields provided
+            if zone_name and height and width:
+                Zone.objects.create(
+                    name=zone_name,
+                    powerplant=powerplant,
+                    height=int(height),
+                    width=int(width)
+                )
+
             return redirect('solar_management')
 
     return render(request, 'create_powerplant.html', {
