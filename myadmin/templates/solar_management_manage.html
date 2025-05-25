@@ -75,9 +75,14 @@
         <div class="mb-6">
             <h3 class="font-semibold mb-2 border-b border-gray-300 pb-1 text-gray-700">Admins</h3>
             {% if powerplant.admin.all %}
-            <ul class="list-disc list-inside text-gray-700 space-y-1">
+            <ul class="flex flex-wrap gap-2">
                 {% for user in powerplant.admin.all %}
-                <li class="py-1">{{ user.user.email }}</li>
+                <li>
+                    <a href="{% url 'users_management_manage' user_id=user.id %}"
+                        class="inline-block px-3 py-1 bg-gray-100 rounded-full hover:bg-blue-100 hover:text-blue-600 text-gray-700 text-sm font-medium transition duration-200 ease-in-out">
+                        {{ user.user.email }}
+                    </a>
+                </li>
                 {% endfor %}
             </ul>
             {% else %}
@@ -89,9 +94,14 @@
         <div class="mb-6">
             <h3 class="font-semibold mb-2 border-b border-gray-300 pb-1 text-gray-700">Drone Controllers</h3>
             {% if powerplant.drone_controller.all %}
-            <ul class="list-disc list-inside text-gray-700 space-y-1">
+            <ul class="flex flex-wrap gap-2">
                 {% for user in powerplant.drone_controller.all %}
-                <li class="py-1">{{ user.user.email }}</li>
+                <li>
+                    <a href="{% url 'users_management_manage' user_id=user.id %}"
+                        class="inline-block px-3 py-1 bg-gray-100 rounded-full hover:bg-blue-100 hover:text-blue-600 text-gray-700 text-sm font-medium transition duration-200 ease-in-out">
+                        {{ user.user.email }}
+                    </a>
+                </li>
                 {% endfor %}
             </ul>
             {% else %}
@@ -103,13 +113,18 @@
         <div>
             <h3 class="font-semibold mb-2 border-b border-gray-300 pb-1 text-gray-700">Data Analysts</h3>
             {% if powerplant.data_analyst.all %}
-            <ul class="list-disc list-inside text-gray-700 space-y-1">
+            <ul class="flex flex-wrap gap-2">
                 {% for user in powerplant.data_analyst.all %}
-                <li class="py-1">{{ user.user.email }}</li>
+                <li>
+                    <a href="{% url 'users_management_manage' user_id=user.id %}"
+                        class="inline-block px-3 py-1 bg-gray-100 rounded-full hover:bg-blue-100 hover:text-blue-600 text-gray-700 text-sm font-medium transition duration-200 ease-in-out">
+                        {{ user.user.email }}
+                    </a>
+                </li>
                 {% endfor %}
             </ul>
             {% else %}
-            <p class="text-gray-500 italic">No data analysts found.</p>
+            <p class="text-gray-500 italic">No data_analysts found.</p>
             {% endif %}
         </div>
     </section>

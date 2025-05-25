@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, redirect, get_object_or_404
+from django.urls import reverse
 from authentication.models import CustomUser
 from .forms import ImageUploadForm
 from .models import *
@@ -13,6 +14,8 @@ def users_management(request):
 
 def users_management_manage(request,user_id):
     customuser = CustomUser.objects.get(id=user_id)
+    
+    back_url = request.META.get('HTTP_REFERER', reverse('users_management'))
 
     if request.method == 'POST':
         customuser.status = request.POST.get('status')
@@ -22,6 +25,7 @@ def users_management_manage(request,user_id):
     return render(request, 'users_management_manage.html', {
         'customuser': customuser,
         'statuses': [('active', 'Active'), ('inactive', 'Inactive')],
+        'back_url': back_url
     })
 def profile(request):
     return render(request, 'profile.html')
