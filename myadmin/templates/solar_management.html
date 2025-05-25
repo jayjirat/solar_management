@@ -7,87 +7,41 @@
   </div>
   <!-- Right: Search + Create -->
   <div class="flex items-center gap-10">
-    <input
-      type="text"
-      placeholder="Search"
-      class="input input-bordered w-24 md:w-auto"
-    />
+    <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
     <a href="{% url 'create' %}">
       <button class="btn btn-neutral">Create</button>
     </a>
   </div>
 </div>
-<div
-  class="overflow-x-auto overflow-y-auto mt-8"
-  style="max-height: calc(100% - 80px)"
->
+<div class="overflow-x-auto overflow-y-auto mt-8" style="max-height: calc(100% - 80px)">
   <table class="table">
     <!-- head -->
     <thead>
       <tr>
         <th>Plants ID</th>
         <th>Powerplant</th>
-        <th>Address</th>
         <th>Total Tasks</th>
         <th>Status</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      <!-- row 1 -->
 
-      <!-- row 2 -->
+      {% for powerplant in powerplants %}
       <tr class="hover:bg-base-300">
-        <td>1</td>
-        <td>SolarSpeed</td>
-        <td>Address1</td>
-        <td>0</td>
+        <td>{{powerplant.id}}</td>
+        <td>{{powerplant.name}}</td>
+        <td>{{powerplant.total_tasks}}</td>
         <td>
-          <div class="badge badge-success">Active</div>
+          <div class="badge {% if powerplant.status == 'active' %}badge-success{% else %}badge-error{% endif %}">
+            {{powerplant.status}}</div>
         </td>
         <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
+          <a href="{% url 'solar_management_manage' powerplant_id=powerplant.id %}"
+            class="btn btn-soft btn-accent">Manage</a>
         </td>
       </tr>
-
-      <tr class="hover:bg-base-300">
-        <td>2</td>
-        <td>SSplant</td>
-        <td>Address2</td>
-        <td>4</td>
-        <td>
-          <div class="badge badge-error">Inactive</div>
-        </td>
-        <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
-        </td>
-      </tr>
-
-      <tr class="hover:bg-base-300">
-        <td>3</td>
-        <td>yuutoutopia</td>
-        <td>Address3</td>
-        <td>7</td>
-        <td>
-          <div class="badge badge-error">Inactive</div>
-        </td>
-        <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
-        </td>
-      </tr>
-
-      <tr class="hover:bg-base-300">
-        <td>4</td>
-        <td>NicePlant</td>
-        <td>Address4</td>
-        <td>8</td>
-        <td>
-          <div class="badge badge-success">Active</div>
-        </td>
-        <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
-        </td>
-      </tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>
