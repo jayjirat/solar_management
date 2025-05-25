@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
-from .models import PowerPlant, CustomUser
+from .models import PowerPlant, CustomUser, Zone
 # Create your views here.
 
 
@@ -36,6 +36,10 @@ def create_powerplant(request):
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
 
+        zone_name = request.POST.get('zone_name')
+        height = request.POST.get('zone_height')
+        width = request.POST.get('zone_width')
+
         if name and latitude and longitude:
             powerplant = PowerPlant.objects.create(
                 name=name,
@@ -43,6 +47,15 @@ def create_powerplant(request):
                 longitude=float(longitude),
                 total_tasks=0  # default or calculate if needed
             )
+            # Create Zone if all fields provided
+            if zone_name and height and width:
+                Zone.objects.create(
+                    name=zone_name,
+                    powerplant=powerplant,
+                    height=int(height),
+                    width=int(width)
+                )
+
             # Optionally, assign logged-in user or others to M2M roles here if needed
             # replace with your redirect target
             return redirect('solar_management')
