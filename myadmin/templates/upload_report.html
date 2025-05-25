@@ -1,0 +1,44 @@
+{% extends 'base.html' %} {% block title %}Upload - Report{% endblock%}
+{% block heading %}Report Upload{% endblock %} 
+{% block content %}
+<div class="flex flex-row justify-between">
+    <div class="flex flex-col">
+        <div class="text-xl font-bold">Report Upload for report id: {{report.id}}</div>
+    </div>
+    <div class="flex flex-col">
+        <div class="text-xl font-bold">powerplant: {{powerplant.name}}</div>
+    </div>
+</div>
+<br>
+    <p>File must contains these column.</p>
+    <ul class="list-disc list-inside space-y-2 text-base">
+    <li class="text-warning">zone_name (case sensitive)</li>
+    <li class="text-secondary">x_pos (the x position of the solarpanel in the zone. starting with 1)</li>
+    <li class="text-accent">y_pos (the y position of the solarpanel in the zone. staring with 1)</li>
+    <li class="text-success">efficiency (the efficiency of that particular solarpanel, must a float in [0,1] )</li>
+    </ul>
+    <p class="font-bold my-2">Example for a solarplant with 2 zone. Zone "A" having 3x1 and "B" having 2x2 panels: </p>
+    <pre class="bg-base-200 text-sm p-4 rounded-md overflow-x-auto">
+    <code>
+zone_name,x_pos,y_pos,efficiency
+"A",1,1,0.7
+"A",2,1,0.6
+"A",3,1,0.5
+"B",1,1,0.4
+"B",2,1,0.8
+"B",1,2,0.5
+"B",2,2,0.2
+    </code>
+    </pre>
+
+    
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary mt-4">Upload</button>
+    </form>
+
+{% endblock content %}

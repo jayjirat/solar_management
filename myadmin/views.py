@@ -1,9 +1,14 @@
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import redirect, render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator
+from django.db.models import Exists, OuterRef, Q
+from .forms import ImageUploadForm, CSVUploadForm, ReportForm
+from .models import PowerPlant, Zone, ImageUpload, SolarCell, ReportResult, Report, CellEfficiency
+import csv
+import io
 from authentication.models import CustomUser
-from .forms import ImageUploadForm
-from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser
+from myadmin.decorators import role_required
 
 # Users & Profile Management
 def users_management(request):
@@ -57,13 +62,42 @@ def upload(request):
 
 
 def reports(request):
-    return render(request, 'reports.html')
+    query = request.GET.get('q', '')
+    user = request.user
+    custom_user = getattr(user, 'custom', None)
 
-def reports_detail(request,report_id):
-    return render(request, 'reports_detail.html',{'report_id':report_id})
+    # Base queryset with annotation
+    reports = Report.objects.select_related('powerplant', 'reporter__user').annotate(
+        has_result=Exists(
+            ReportResult.objects.filter(report=OuterRef('pk'))
+        )
+    )
+
+    # Only filter if not superadmin
+    if custom_user and custom_user.role != 'superadmin':
+        reports = reports.filter(
+            Q(powerplant__admin=custom_user) |
+            Q(powerplant__data_analyst=custom_user) |
+            Q(powerplant__drone_controller=custom_user)
+        ).distinct()
+
+    # Apply search filter
+    if query:
+        reports = reports.filter(
+            Q(powerplant__name__icontains=query) |
+            Q(id__icontains=query)
+        )
+
+    # Paginate results
+    paginator = Paginator(reports, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'reports.html', {'page_obj': page_obj, 'query': query})
 
 
 # Upload Images
+@role_required('admin', 'superadmin', 'data_analyst')
 def upload(request):
     powerplants = PowerPlant.objects.all()
     zones = Zone.objects.all()
@@ -121,45 +155,6 @@ def create_powerplant(request):
     })
 
 
-# Report Detail
-def report_detail(request):
-    solar_data = [
-        {
-            'row': 2,
-            'col': 2,
-            'zone_name': 'Zone Keos',
-            'zone_data': [
-                [{'label': 'Metric A', 'value': 0.9}, {'label': 'Metric B', 'value': 0.6}],
-                [{'label': 'Metric C', 'value': 0.2}, {'label': 'Metric D', 'value': 0.4}]
-            ]
-        },
-        {
-            'row': 4,
-            'col': 1,
-            'zone_name': 'Zone Theo',
-            'zone_data': [
-                [{'label': 'Metric E', 'value': 0.8}],
-                [{'label': 'Metric F', 'value': 0.4}],
-                [{'label': 'Metric G', 'value': 0.2}],
-                [{'label': 'Metric H', 'value': 0.6}]
-            ]
-        },
-    ]
-
-    for zone in solar_data:
-        for row in zone['zone_data']:
-            for panel in row:
-                panel['color_class'] = get_color(panel['value'])
-        zone['row_range'] = range(zone['row'])
-        zone['val_range'] = range(zone['col'])
-
-    context = {
-        'zone_amount': len(solar_data),
-        'solar_data': solar_data
-    }
-    return render(request, 'report_detail.html', context)
-
-
 # Helper
 def get_color(value):
     if value >= 0.75:
@@ -170,3 +165,117 @@ def get_color(value):
         return 'bg-50-color'
     else:
         return 'bg-25-color'
+
+# Report Detail
+@role_required('admin', 'superadmin', 'data_analyst')
+def report_detail(request, report_id):
+    report = Report.objects.get(id=report_id)
+    report_result_list = ReportResult.objects.filter(report=report)
+    solar_data = []
+    for report_result in report_result_list:
+        zone = report_result.zone
+        x = zone.width
+        y = zone.height
+        zone_data = []
+        sorted_solar_cell_list = SolarCell.objects.filter(zone=zone).order_by('y_position', 'x_position')
+        eff_map = {
+        e.solar_cell_id: e 
+        for e in CellEfficiency.objects.filter(report_result=report_result)}
+        cell_efficiencies = [eff_map.get(cell.id) for cell in sorted_solar_cell_list]
+        print(cell_efficiencies)
+        i = 0
+        while i < len(cell_efficiencies):
+            row_list = []
+            for j in range(x):
+                row_list.append({'value': cell_efficiencies[i].efficiency_percentage})
+                i += 1
+            zone_data.append(row_list)
+        solar_data.append({'row': y, 'col': x, 'zone_name': zone.name, 'zone_data': zone_data})
+
+    for zone in solar_data:
+        for row in zone['zone_data']:
+            for panel in row:
+                panel['color_class'] = get_color(panel['value'])
+        zone['row_range'] = range(zone['row'])
+        zone['val_range'] = range(zone['col'])
+
+    powerplant = report.powerplant
+    context = {
+        'zone_amount': len(solar_data),
+        'solar_data': solar_data,
+        'report': report,
+        'powerplant': powerplant,
+    }
+    return render(request, 'report_detail.html', context)
+
+@role_required('admin', 'superadmin', 'data_analyst')
+def create_report(request):
+    try:
+        custom_user = CustomUser.objects.get(user=request.user)
+        if request.method == 'POST':
+            form = ReportForm(request.POST, user=request.user)
+            if form.is_valid():
+                report = form.save(commit=False)
+                report.reporter = custom_user
+                report.save()
+                return redirect('reports')  
+        else:
+            form = ReportForm(user=request.user)
+        return render(request, 'create_report.html', {'form': form})
+    except CustomUser.DoesNotExist:
+        return render(request, 'errors/missing_profile.html', status=404)
+
+@role_required('admin', 'superadmin', 'data_analyst')
+def report_upload(request, report_id):
+    report = get_object_or_404(Report, id=report_id)
+    powerplant = report.powerplant
+    zones = Zone.objects.filter(powerplant=powerplant)
+    if request.method == 'POST':
+        form = CSVUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+
+            csv_file = form.cleaned_data['csv_file']
+
+            if not csv_file.name.endswith('.csv'):
+                return render(request, 'upload_report.html', {'form': form, 'error': 'File is not CSV'})
+            
+            decoded_file = csv_file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+            for zone in zones:
+                ReportResult.objects.create(
+                    report = report,
+                    zone = zone,
+                )
+            for row in reader:
+                zone_name = row['zone_name']
+                x_pos = int(row['x_pos'])
+                y_pos = int(row['y_pos'])
+                try:
+                    zone_id = Zone.objects.get(powerplant=powerplant, name=zone_name)
+                    report_result = ReportResult.objects.get(report=report, zone_id=zone_id)
+                    solar = SolarCell.objects.get(zone_id=zone_id, x_position=x_pos, y_position=y_pos)
+                except Zone.DoesNotExist:
+                    continue
+                except SolarCell.DoesNotExist:
+                    continue # write handle
+                except:
+                    continue
+
+                CellEfficiency.objects.create(
+                    efficiency_percentage = float(row['efficiency']),
+                    report_result = report_result,
+                    solar_cell_id = solar.id
+                )
+
+            return redirect('reports')  # Change this as needed
+    else:
+        form = CSVUploadForm()
+
+    context = {
+        'form': form,
+        'zones': zones,
+        'report': report,
+        'powerplant': powerplant,
+    }
+    return render(request, 'upload_report.html', context)
