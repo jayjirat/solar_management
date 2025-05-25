@@ -28,31 +28,23 @@ block content %} {% block content %}
       <!-- row 1 -->
 
       <!-- row 2 -->
+      {% for customuser in users %}
       <tr class="hover:bg-base-300">
-        <td>Hart Hagerty</td>
-        <td>Desktop Support Technician</td>
-        <td>Cy Ganderton</td>
-        <td>Drone Controller</td>
+        <td>{{customuser.user.first_name}} {{customuser.user.last_name}}</td>
+        <td>1</td>
+        <td>{{customuser.user.email}}</td>
+        <td>{{customuser.role}}</td>
         <td>
-          <div class="badge badge-success">Active</div>
+          <div class="badge {% if customuser.status == 'active' %}badge-success{% else %}badge-error{% endif %}">
+            {{customuser.status}}</div>
         </td>
         <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
+          <a href="{% url 'users_management_manage' user_id=customuser.id %}" class="btn btn-soft btn-accent">Manage</a>
         </td>
       </tr>
+      {% endfor %}
 
-      <tr class="hover:bg-base-300">
-        <td>Hart Hagerty</td>
-        <td>Desktop Support Technician</td>
-        <td>Cy Ganderton</td>
-        <td>Drone Controller</td>
-        <td>
-          <div class="badge badge-error">Inactive</div>
-        </td>
-        <td>
-          <button class="btn btn-soft btn-accent">Manage</button>
-        </td>
-      </tr>
+
 
 
     </tbody>
