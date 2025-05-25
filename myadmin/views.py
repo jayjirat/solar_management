@@ -7,9 +7,10 @@ from .forms import ImageUploadForm, CSVUploadForm, ReportForm
 from .models import PowerPlant, Zone, ImageUpload, SolarCell, ReportResult, Report, CellEfficiency
 import csv
 import io
+from django.urls import reverse
 from authentication.models import CustomUser
 from .forms import ImageUploadForm
-from .models import PowerPlant, Zone, ImageUpload, SolarCell, CustomUser, Report
+from .models import *
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from myadmin.decorators import role_required
@@ -22,17 +23,18 @@ def users_management(request):
 
 def users_management_manage(request,user_id):
     customuser = CustomUser.objects.get(id=user_id)
+    
+    back_url = request.META.get('HTTP_REFERER', reverse('users_management'))
 
     if request.method == 'POST':
-        customuser.role = request.POST.get('role')
         customuser.status = request.POST.get('status')
         customuser.save()
         return redirect('users_management')
 
     return render(request, 'users_management_manage.html', {
         'customuser': customuser,
-        'roles': [('admin', 'Admin'), ('data_analyst', 'Data Analyst'),('drone_controller', 'Drone Controller')],
         'statuses': [('active', 'Active'), ('inactive', 'Inactive')],
+        'back_url': back_url
     })
 def profile(request):
     custom_user = CustomUser.objects.get(user=request.user)
@@ -93,7 +95,59 @@ def dashboard(request):
     })
 
 def solar(request):
-    return render(request, 'solar_management.html')
+    powerplants = PowerPlant.objects.all()
+
+    context = {
+        'powerplants': powerplants
+    }
+    return render(request, 'solar_management.html',context)
+
+def solar_manage(request,powerplant_id):
+    powerplant = PowerPlant.objects.get(id=powerplant_id)
+    zones = Zone.objects.filter(powerplant=powerplant)
+    solar_cells = SolarCell.objects.filter(zone__in=zones)
+    reports = Report.objects.filter(powerplant=powerplant)
+    users = CustomUser.objects.all()
+
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        role = request.POST.get("role")
+        user = CustomUser.objects.get(id=user_id)
+
+        # ตรวจสอบว่า user มี role ไหนแล้วใน powerplant นี้หรือยัง
+        already_has_role = (
+            powerplant.admin.filter(id=user.id).exists() or
+            powerplant.data_analyst.filter(id=user.id).exists() or
+            powerplant.drone_controller.filter(id=user.id).exists()
+        )
+
+        if already_has_role:
+            return redirect('solar_management_manage', powerplant_id=powerplant_id)
+        else:
+            if role == 'admin':
+                powerplant.admin.add(user)
+                user.role = 'admin'
+            elif role == 'data_analyst':
+                powerplant.data_analyst.add(user)
+                user.role = 'data_analyst'
+            elif role == 'drone_controller':
+                powerplant.drone_controller.add(user)
+                user.role = 'drone_controller'
+            powerplant.save()
+            user.save()
+            return redirect('solar_management_manage', powerplant_id=powerplant_id)
+
+
+
+    context = {
+        'powerplant': powerplant,
+        'zones' : zones,
+        'solar_cells': solar_cells,
+        'reports': reports,
+        'roles': [('admin', 'Admin'), ('data_analyst', 'Data Analyst'),('drone_controller', 'Drone Controller')],
+        'users': users
+    }
+    return render(request, 'solar_management_manage.html',context)
 
 
 def upload(request):

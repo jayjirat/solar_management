@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage - {{ powerplant.name }}{% endblock %}
+{% block heading %}Powerplant Management{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8 p-4 max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col items-start gap-2">
+        <h1 class="text-3xl font-bold text-gray-800">{{ powerplant.name }}</h1>
+        <p class="text-gray-500">Manage powerplant details.</p>
+    </div>
+
+    <!-- Information -->
+    <section>
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">Information</h2>
+        <div class="bg-white p-6 rounded-lg shadow border border-gray-200 grid grid-cols-2 gap-4">
+            <div><span class="font-bold">ID:</span> {{ powerplant.id }}</div>
+            <div><span class="font-bold">Name:</span> {{ powerplant.name }}</div>
+            <div><span class="font-bold">Latitude:</span> {{ powerplant.latitude }}</div>
+            <div><span class="font-bold">Longitude:</span> {{ powerplant.longitude }}</div>
+            <div><span class="font-bold">Total Tasks:</span> {{ powerplant.total_tasks }}</div>
+            <div><span class="font-bold">Created At:</span> {{ powerplant.createdAt }}</div>
+            <div><span class="font-bold">Updated At:</span> {{ powerplant.updatedAt }}</div>
+            <div><span class="font-bold">Zone:</span> {{ powerplant.zone.name }}</div>
+        </div>
+    </section>
+
+    <section>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Roles</h2>
+            <button class="btn btn-primary" onclick="my_modal_3.showModal()">Add User</button>
+            <dialog id="my_modal_3" class="modal">
+                <div class="modal-box">
+                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                        onclick="document.getElementById('my_modal_3').close()">✕</button>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-6 border-b border-gray-300 pb-2">
+                            <h2 class="text-xl font-semibold text-gray-800">
+                                Add User to Powerplant <span class="font-bold">{{ powerplant.name }}</span>
+                            </h2>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block font-semibold mb-1">User</label>
+                            <select name="user_id" class="select select-bordered w-full" required>
+                                {% for customuser in users %}
+                                <option value="{{ customuser.id }}">{{ customuser.user.email }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-8">
+                            <label class="block font-semibold mb-1">Role</label>
+                            <select name="role" class="select select-bordered w-full" required>
+                                {% for value, label in roles %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <button type="submit" class="btn btn-active">Add</button>
+                        </div>
+                    </form>
+
+                </div>
+            </dialog>
+        </div>
+
+        <!-- Admins -->
+        <div class="mb-6">
+            <h3 class="font-semibold mb-2 border-b border-gray-300 pb-1 text-gray-700">Admins</h3>
+            {% if powerplant.admin.all %}
+            <ul class="flex flex-wrap gap-2">
+                {% for user in powerplant.admin.all %}
+                <li>
+                    <a href="{% url 'users_management_manage' user_id=user.id %}"
+                        class="inline-block px-3 py-1 bg-gray-100 rounded-full hover:bg-blue-100 hover:text-blue-600 text-gray-700 text-sm font-medium transition duration-200 ease-in-out">
+                        {{ user.user.email }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-500 italic">No admins found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Drone Controllers -->
+        <div class="mb-6">
+            <h3 class="font-semibold mb-2 border-b border-gray-300 pb-1 text-gray-700">Drone Controllers</h3>
+            {% if powerplant.drone_controller.all %}
+            <ul class="flex flex-wrap gap-2">
+                {% for user in powerplant.drone_controller.all %}
+                <li>
+                    <a href="{% url 'users_management_manage' user_id=user.id %}"
+                        class="inline-block px-3 py-1 bg-gray-100 rounded-full hover:bg-blue-100 hover:text-blue-600 text-gray-700 text-sm font-medium transition duration-200 ease-in-out">
+                        {{ user.user.email }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-500 italic">No drone controllers found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Data Analysts -->
+        <div>
+            <h3 class="font-semibold mb-2 border-b border-gray-300 pb-1 text-gray-700">Data Analysts</h3>
+            {% if powerplant.data_analyst.all %}
+            <ul class="flex flex-wrap gap-2">
+                {% for user in powerplant.data_analyst.all %}
+                <li>
+                    <a href="{% url 'users_management_manage' user_id=user.id %}"
+                        class="inline-block px-3 py-1 bg-gray-100 rounded-full hover:bg-blue-100 hover:text-blue-600 text-gray-700 text-sm font-medium transition duration-200 ease-in-out">
+                        {{ user.user.email }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-500 italic">No data_analysts found.</p>
+            {% endif %}
+        </div>
+    </section>
+
+
+
+
+    <!-- Zones -->
+    <section>
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">Zones</h2>
+        {% if zones|length == 0 %}
+        <div class="text-gray-500 italic">No zones found.</div>
+        {% else %}
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+            {% for zone in zones %}
+            <div
+                class="bg-gradient-to-br from-indigo-100 to-indigo-200 p-3 rounded-lg flex flex-col items-center justify-center shadow hover:scale-105 transform transition">
+                <div class="font-semibold text-indigo-800">{{ zone.name }}</div>
+                <div class="text-sm text-indigo-700">{{ zone.width }} x {{ zone.height }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Reports -->
+    <section>
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">Reports</h2>
+        {% if reports|length == 0 %}
+        <div class="text-gray-500 italic">No reports found.</div>
+        {% else %}
+        <div class="flex flex-col gap-2">
+            {% for report in reports %}
+            <a href="{% url 'reports_detail' report_id=report.id %}"
+                class="bg-gray-100 hover:bg-gray-200 p-4 rounded-md flex justify-between items-center shadow-sm">
+                <div class="text-gray-800 font-medium">{{ forloop.counter }}. {{ report.powerplant.name }}</div>
+                <div class="text-sm text-gray-600">{{ report.createdAt }}</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}

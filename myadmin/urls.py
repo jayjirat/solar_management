@@ -6,9 +6,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('users_management/', views.users_management, name='users_management'),
-    path('users_management/<int:user_id>', views.users_management_manage, name='users_management_manage'),
+    path('users_management/<int:user_id>/', views.users_management_manage, name='users_management_manage'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('solar_management/', views.solar, name='solar_management'),
+    path('solar_management/<int:powerplant_id>/', views.solar_manage, name='solar_management_manage'),
     path('upload_history/', views.upload, name='upload_history'),
     path('reports/', views.reports, name='reports'),
     path('profile/', views.profile, name='profile'),
