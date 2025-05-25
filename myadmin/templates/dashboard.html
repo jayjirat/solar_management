@@ -181,7 +181,7 @@
       </div>
     </div>
 
-    <!-- Hourly Power Report Section -->
+    <!-- Hourly Power Report Section
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <div class="flex justify-between items-center mb-4">
@@ -229,11 +229,20 @@
             </select>
           </div>
 
+          <div class="form-control">
+            <select class="select select-bordered w-full max-w-xs">
+              <option disabled selected>Select Time Range</option>
+              <option>This Day</option>
+              <option>This Week</option>
+              <option>This Month</option>
+            </select>
+          </div> -->
+
         
-        <!-- Hourly Chart -->
+        <!-- Hourly Chart
         <div class="w-full h-64">
           <canvas id="hourlyChart"></canvas>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -244,26 +253,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+  const allPowerplantData = {{ powerplant_json|safe }};
+</script>
+
+<script>
   // Initialize charts when the DOM is loaded
   document.addEventListener('DOMContentLoaded', function() {
     // Get powerplant data from Django template
     const powerplantData = [
-      {% for powerplant in powerplants %}
+      {% for plant in powerplant_data %}
       {
-        id: {{ powerplant.id }},
-        name: "{{ powerplant.name }}",
-        // Add default data for the chart - you might want to replace this with actual data
-        data: [280, 300, 320, 300, 290, 310, 300, 290, 300],
+        id: {{ plant.id }},
+        name: "{{ plant.name }}",
+        data: {{ plant.data|safe }},
         borderColor: getRandomColor({{ forloop.counter0 }})
       },
-      {% empty %}
-      // Fallback data if no powerplants exist
-      {
-        id: 1,
-        name: "No Powerplants",
-        data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        borderColor: 'rgba(200, 200, 200, 1)'
-      }
       {% endfor %}
     ];
     
@@ -278,7 +282,7 @@
           data: plant.data,
           borderColor: plant.borderColor,
           tension: 0.3,
-          powerplantId: plant.id // Store the ID for filtering
+          powerplantId: plant.id
         }))
       },
       options: {
@@ -303,31 +307,31 @@
     // Store chart instance for later updates
     window.powerplantChart = powerplantChart;
     
-    // Initialize hourly power report chart
-    const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
-    const hourlyChart = new Chart(hourlyCtx, {
-      type: 'bar',
-      data: {
-        labels: ['1-2AM', '2-3AM', '3-4AM', '4-5AM', '5-6AM', '6-7AM', '7-8AM', '8-9AM', '9-10AM', '10-11AM', '11-12PM'],
-        datasets: [{
-          label: 'Power (W)',
-          data: [1500, 1800, 2200, 2500, 1800, 2000, 2400, 2800, 1700, 2100, 2431],
-          backgroundColor: 'rgba(54, 162, 235, 0.5)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 5000
-          }
-        }
-      }
-    });
+    // // Initialize hourly power report chart
+    // const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+    // const hourlyChart = new Chart(hourlyCtx, {
+    //   type: 'bar',
+    //   data: {
+    //     labels: ['1-2AM', '2-3AM', '3-4AM', '4-5AM', '5-6AM', '6-7AM', '7-8AM', '8-9AM', '9-10AM', '10-11AM', '11-12PM'],
+    //     datasets: [{
+    //       label: 'Power (W)',
+    //       data: [1500, 1800, 2200, 2500, 1800, 2000, 2400, 2800, 1700, 2100, 2431],
+    //       backgroundColor: 'rgba(54, 162, 235, 0.5)',
+    //       borderColor: 'rgba(54, 162, 235, 1)',
+    //       borderWidth: 1
+    //     }]
+    //   },
+    //   options: {
+    //     responsive: true,
+    //     maintainAspectRatio: false,
+    //     scales: {
+    //       y: {
+    //         beginAtZero: true,
+    //         max: 5000
+    //       }
+    //     }
+    //   }
+    // });
     
     // Set up tab functionality
     const tabs = document.querySelectorAll('.tabs .tab');
@@ -433,24 +437,41 @@
   
   // Updated function to work with dynamic powerplant data
   function updatePowerplantChart() {
-    const checkboxes = document.querySelectorAll('.powerplant-checkbox');
-    const selectedPowerplants = [];
-    
-    checkboxes.forEach(checkbox => {
-      if (checkbox.checked) {
-        selectedPowerplants.push(parseInt(checkbox.value));
-      }
-    });
-    
-    // Filter datasets based on selected powerplants
-    if (window.powerplantChart) {
-      window.powerplantChart.data.datasets.forEach(dataset => {
-        const powerplantId = dataset.powerplantId;
-        dataset.hidden = !selectedPowerplants.includes(powerplantId);
+    const selectedPlantIds = Array.from(document.querySelectorAll('.powerplant-checkbox:checked'))
+      .map(cb => parseInt(cb.value));
+
+    const startDate = new Date(`${document.getElementById("startDate").value}T${document.getElementById("startTime").value}`);
+    const endDate = new Date(`${document.getElementById("endDate").value}T${document.getElementById("endTime").value}`);
+
+    // Build labels: unique sorted dates across all selected reports
+    let allDates = new Set();
+
+    const filteredData = allPowerplantData
+      .filter(p => selectedPlantIds.includes(p.id))
+      .map(p => {
+        const entries = p.reports.filter(r => {
+          const d = new Date(r.date);
+          return d >= startDate && d <= endDate;
+        });
+
+        // Add valid dates to global label set
+        entries.forEach(e => allDates.add(e.date));
+
+        return {
+          label: p.name,
+          data: entries.map(e => e.energy),
+          borderColor: getRandomColor(p.id),
+          tension: 0.3
+        };
       });
-      
-      window.powerplantChart.update();
-    }
+
+    // Sort dates and use them as labels
+    const sortedLabels = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+
+    // Update chart
+    window.powerplantChart.data.labels = sortedLabels;
+    window.powerplantChart.data.datasets = filteredData;
+    window.powerplantChart.update();
   }
 </script>
 {% endblock %}
