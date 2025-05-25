@@ -199,7 +199,7 @@ def create_report(request):
                 report.save()
                 return redirect('reports')  
         else:
-            form = ReportForm()
+            form = ReportForm(user=request.user)
         return render(request, 'create_report.html', {'form': form})
     except CustomUser.DoesNotExist:
         return render(request, 'errors/missing_profile.html', status=404)
@@ -247,7 +247,7 @@ def report_upload(request, report_id):
                     solar_cell_id = solar.id
                 )
 
-            return redirect('dashboard')  # Change this as needed
+            return redirect('reports')  # Change this as needed
     else:
         form = CSVUploadForm()
 

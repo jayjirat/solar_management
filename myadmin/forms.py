@@ -1,7 +1,9 @@
 # forms.py
 from django import forms
 from .models import ImageUpload, Zone, PowerPlant, Report
-from authentication import models
+from authentication.models import CustomUser
+from django.db.models import Q
+
 class ImageUploadForm(forms.ModelForm):
     class Meta:
         model = ImageUpload
@@ -19,13 +21,17 @@ class ReportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)  # 🔹 Grab the user from kwargs
         super().__init__(*args, **kwargs)
+        print("USER:", user)
+        print("HAS CUSTOM:", hasattr(user, 'custom'))
+        custom_user = getattr(user, 'custom', None)
 
-        if user and hasattr(user, 'custom'):
+        if custom_user:
             self.fields['powerplant'].queryset = PowerPlant.objects.filter(
-                models.Q(admin=user.custom) | models.Q(data_analyst=user.custom)
+                Q(admin=custom_user) | Q(data_analyst=custom_user)
             ).distinct()
         else:
-            self.fields['powerplant'].queryset = PowerPlant.objects.none()  # No access
+            print("ELSEEEEEE")
+            self.fields['powerplant'].queryset = PowerPlant.objects.none()
 
 class CSVUploadForm(forms.Form):
     csv_file = forms.FileField(
