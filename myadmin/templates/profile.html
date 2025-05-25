@@ -45,10 +45,18 @@
       </div>
     
     <div class="flex justify-self-end -translate-y-[450px] relative mr-[275px] mt-6">
-        <div class="bg-[#9bebd8] border-2 border-[#00B087] text-[#008767] px-6 py-2 rounded-lg text-center ">
+      {% if custom_user.status == 'active' %}
+        <div class="bg-[#9bebd8] border-2 border-[#00B087] text-[#008767] px-6 py-2 rounded-lg text-center">
             <p>Active</p>
-        </div>        
+        </div>
+      {% else %}
+        <div class="bg-[#fddddd] border-2 border-[#ff6b6b] text-[#ff0000] px-6 py-2 rounded-lg text-center">
+            <p>Inactive</p>
+        </div>
+      {% endif %}
+
     </div>
+
     <div class="-translate-y-[610px]">
         <h2 class="text-black text-3xl font-bold pt-16 pl-6 flex items-center gap-2 ">
             Contact

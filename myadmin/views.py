@@ -28,7 +28,16 @@ def users_management_manage(request,user_id):
         'statuses': [('active', 'Active'), ('inactive', 'Inactive')],
     })
 def profile(request):
-    return render(request, 'profile.html')
+    custom_user = CustomUser.objects.get(user=request.user)
+    context = {
+        'custom_user': custom_user,
+        'display_name': custom_user.display_name or request.user.username,
+        'role': custom_user.role,
+        'email': request.user.email,
+        'profile_image': custom_user.profile_image,
+    }
+    return render(request, 'profile.html', context)
+
 
 def update_display_name(request):
     if request.method == "POST":
