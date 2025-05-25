@@ -27,13 +27,7 @@
 
             <div>
                 <label class="block font-semibold mb-1">Role</label>
-                <select name="role" class="select select-bordered w-full">
-                    {% for value, label in roles %}
-                    <option value="{{ value }}" {% if customuser.role == value %}selected{% endif %}>{{ label }}</option>
-
-
-                    {% endfor %}
-                </select>
+                <input type="text" class="input input-bordered w-full" value="{{ customuser.role }}" disabled>
             </div>
 
             <div>
