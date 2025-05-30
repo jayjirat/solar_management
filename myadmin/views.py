@@ -16,14 +16,17 @@ import json
 from myadmin.decorators import role_required
 
 # Users & Profile Management
+
+
 def users_management(request):
     users = CustomUser.objects.all()
     context = {'users': users}
-    return render(request, 'users_management.html',context=context)
+    return render(request, 'users_management.html', context=context)
 
-def users_management_manage(request,user_id):
+
+def users_management_manage(request, user_id):
     customuser = CustomUser.objects.get(id=user_id)
-    
+
     back_url = request.META.get('HTTP_REFERER', reverse('users_management'))
 
     if request.method == 'POST':
@@ -36,6 +39,8 @@ def users_management_manage(request,user_id):
         'statuses': [('active', 'Active'), ('inactive', 'Inactive')],
         'back_url': back_url
     })
+
+
 def profile(request):
     custom_user = CustomUser.objects.get(user=request.user)
     context = {
@@ -55,6 +60,7 @@ def update_display_name(request):
         custom_user.display_name = display_name
         custom_user.save()
     return redirect('profile')
+
 
 def upload_profile_image(request):
     if request.method == 'POST' and request.FILES.get('profile_image'):
@@ -94,15 +100,17 @@ def dashboard(request):
         "powerplant_json": json.dumps(powerplant_data, cls=DjangoJSONEncoder)
     })
 
+
 def solar(request):
     powerplants = PowerPlant.objects.all()
 
     context = {
         'powerplants': powerplants
     }
-    return render(request, 'solar_management.html',context)
+    return render(request, 'solar_management.html', context)
 
-def solar_manage(request,powerplant_id):
+
+def solar_manage(request, powerplant_id):
     powerplant = PowerPlant.objects.get(id=powerplant_id)
     zones = Zone.objects.filter(powerplant=powerplant)
     solar_cells = SolarCell.objects.filter(zone__in=zones)
@@ -137,17 +145,15 @@ def solar_manage(request,powerplant_id):
             user.save()
             return redirect('solar_management_manage', powerplant_id=powerplant_id)
 
-
-
     context = {
         'powerplant': powerplant,
-        'zones' : zones,
+        'zones': zones,
         'solar_cells': solar_cells,
         'reports': reports,
-        'roles': [('admin', 'Admin'), ('data_analyst', 'Data Analyst'),('drone_controller', 'Drone Controller')],
+        'roles': [('admin', 'Admin'), ('data_analyst', 'Data Analyst'), ('drone_controller', 'Drone Controller')],
         'users': users
     }
-    return render(request, 'solar_management_manage.html',context)
+    return render(request, 'solar_management_manage.html', context)
 
 
 def upload(request):
@@ -216,6 +222,7 @@ def upload(request):
         'zones': zones
     })
 
+
 def get_zones(request, powerplant_id):
     try:
         powerplant = PowerPlant.objects.get(id=powerplant_id)
@@ -239,7 +246,7 @@ def create_powerplant(request):
         width = request.POST.get('zone_width')
 
         if name and latitude and longitude:
-            PowerPlant.objects.create(
+            powerplant = PowerPlant.objects.create(
                 name=name,
                 latitude=float(latitude),
                 longitude=float(longitude),
@@ -247,12 +254,21 @@ def create_powerplant(request):
             )
             # Create Zone if all fields provided
             if zone_name and height and width:
-                Zone.objects.create(
+                height = int(height)
+                width = int(width)
+                zone = Zone.objects.create(
                     name=zone_name,
                     powerplant=powerplant,
                     height=int(height),
                     width=int(width)
                 )
+            # ✅ สร้าง SolarCell สำหรับทุกตำแหน่งในโซน
+                solar_cells = [
+                    SolarCell(zone=zone, x_position=x, y_position=y)
+                    for x in range(1, width + 1)
+                    for y in range(1, height + 1)
+                ]
+                SolarCell.objects.bulk_create(solar_cells)
 
             return redirect('solar_management')
 
@@ -273,6 +289,8 @@ def get_color(value):
         return 'bg-25-color'
 
 # Report Detail
+
+
 @role_required('admin', 'superadmin', 'data_analyst')
 def report_detail(request, report_id):
     report = Report.objects.get(id=report_id)
@@ -283,20 +301,24 @@ def report_detail(request, report_id):
         x = zone.width
         y = zone.height
         zone_data = []
-        sorted_solar_cell_list = SolarCell.objects.filter(zone=zone).order_by('y_position', 'x_position')
+        sorted_solar_cell_list = SolarCell.objects.filter(
+            zone=zone).order_by('y_position', 'x_position')
         eff_map = {
-        e.solar_cell_id: e 
-        for e in CellEfficiency.objects.filter(report_result=report_result)}
-        cell_efficiencies = [eff_map.get(cell.id) for cell in sorted_solar_cell_list]
+            e.solar_cell_id: e
+            for e in CellEfficiency.objects.filter(report_result=report_result)}
+        cell_efficiencies = [eff_map.get(cell.id)
+                             for cell in sorted_solar_cell_list]
         print(cell_efficiencies)
         i = 0
         while i < len(cell_efficiencies):
             row_list = []
             for j in range(x):
-                row_list.append({'value': cell_efficiencies[i].efficiency_percentage})
+                row_list.append(
+                    {'value': cell_efficiencies[i].efficiency_percentage})
                 i += 1
             zone_data.append(row_list)
-        solar_data.append({'row': y, 'col': x, 'zone_name': zone.name, 'zone_data': zone_data})
+        solar_data.append(
+            {'row': y, 'col': x, 'zone_name': zone.name, 'zone_data': zone_data})
 
     for zone in solar_data:
         for row in zone['zone_data']:
@@ -314,6 +336,7 @@ def report_detail(request, report_id):
     }
     return render(request, 'report_detail.html', context)
 
+
 @role_required('admin', 'superadmin', 'data_analyst')
 def create_report(request):
     try:
@@ -324,12 +347,13 @@ def create_report(request):
                 report = form.save(commit=False)
                 report.reporter = custom_user
                 report.save()
-                return redirect('reports')  
+                return redirect('reports')
         else:
             form = ReportForm(user=request.user)
         return render(request, 'create_report.html', {'form': form})
     except CustomUser.DoesNotExist:
         return render(request, 'errors/missing_profile.html', status=404)
+
 
 @role_required('admin', 'superadmin', 'data_analyst')
 def report_upload(request, report_id):
@@ -344,34 +368,37 @@ def report_upload(request, report_id):
 
             if not csv_file.name.endswith('.csv'):
                 return render(request, 'upload_report.html', {'form': form, 'error': 'File is not CSV'})
-            
+
             decoded_file = csv_file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
             for zone in zones:
                 ReportResult.objects.create(
-                    report = report,
-                    zone = zone,
+                    report=report,
+                    zone=zone,
                 )
             for row in reader:
                 zone_name = row['zone_name']
                 x_pos = int(row['x_pos'])
                 y_pos = int(row['y_pos'])
                 try:
-                    zone_id = Zone.objects.get(powerplant=powerplant, name=zone_name)
-                    report_result = ReportResult.objects.get(report=report, zone_id=zone_id)
-                    solar = SolarCell.objects.get(zone_id=zone_id, x_position=x_pos, y_position=y_pos)
+                    zone_id = Zone.objects.get(
+                        powerplant=powerplant, name=zone_name)
+                    report_result = ReportResult.objects.get(
+                        report=report, zone_id=zone_id)
+                    solar = SolarCell.objects.get(
+                        zone_id=zone_id, x_position=x_pos, y_position=y_pos)
                 except Zone.DoesNotExist:
                     continue
                 except SolarCell.DoesNotExist:
-                    continue # write handle
+                    continue  # write handle
                 except:
                     continue
 
                 CellEfficiency.objects.create(
-                    efficiency_percentage = float(row['efficiency']),
-                    report_result = report_result,
-                    solar_cell_id = solar.id
+                    efficiency_percentage=float(row['efficiency']),
+                    report_result=report_result,
+                    solar_cell_id=solar.id
                 )
 
             return redirect('reports')  # Change this as needed
