@@ -237,13 +237,9 @@ def get_zones(request, powerplant_id):
 def create_powerplant(request):
     if request.method == 'POST':
         name = request.POST.get('name')
-        address = request.POST.get('address')  # Not stored in DB
+        address = request.POST.get('address')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
-
-        zone_name = request.POST.get('zone_name')
-        height = request.POST.get('zone_height')
-        width = request.POST.get('zone_width')
 
         if name and latitude and longitude:
             powerplant = PowerPlant.objects.create(
@@ -252,21 +248,29 @@ def create_powerplant(request):
                 longitude=float(longitude),
                 total_tasks=0
             )
-            # Create Zone if all fields provided
-            if zone_name and height and width:
-                height = int(height)
-                width = int(width)
+
+            # 🔁 ดึงหลายชุดของ zone_name, zone_height, zone_width
+            zone_names = request.POST.getlist('zone_name')
+            zone_heights = request.POST.getlist('zone_height')
+            zone_widths = request.POST.getlist('zone_width')
+
+            for i in range(len(zone_names)):
+                z_name = zone_names[i]
+                z_height = int(zone_heights[i])
+                z_width = int(zone_widths[i])
+
                 zone = Zone.objects.create(
-                    name=zone_name,
+                    name=z_name,
                     powerplant=powerplant,
-                    height=int(height),
-                    width=int(width)
+                    height=z_height,
+                    width=z_width
                 )
-            # ✅ สร้าง SolarCell สำหรับทุกตำแหน่งในโซน
+
+                # ➕ สร้าง SolarCell สำหรับ zone นี้
                 solar_cells = [
                     SolarCell(zone=zone, x_position=x, y_position=y)
-                    for x in range(1, width + 1)
-                    for y in range(1, height + 1)
+                    for x in range(1, z_width + 1)
+                    for y in range(1, z_height + 1)
                 ]
                 SolarCell.objects.bulk_create(solar_cells)
 
