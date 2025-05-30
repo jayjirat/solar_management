@@ -217,4 +217,4 @@ SIMPLE_JWT = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
+CSRF_TRUSTED_ORIGINS = ['https://solarizz.duckdns.org/']
