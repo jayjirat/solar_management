@@ -1,199 +1,285 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" data-theme="bumblebee">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=U, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{% block title %}{% endblock %}</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=U, initial-scale=1.0" />
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <title>{% block title %}{% endblock %}</title>
-</head>
+  <!-- Rest of your base.html remains the same -->
 
-<!-- Rest of your base.html remains the same -->
-
-<body>
-  <div class="flex flex-col h-screen">
-    <!-- Main Content (Navbar + Content) -->
-    <div>
-      <!-- Navbar (Full Width) -->
-      <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
-        <a href="{% url 'profile' %}">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full">
-              <img alt="Tailwind CSS Navbar component"
-                src="{% if profile_image %}{{ profile_image.url }}{% else %}{% static 'Profile.jpg' %}{% endif %}" />
-            </div>
-          </div>
-          <div class="pl-4">
-            <div class="flex flex-col">
-              <div
-                class="text-lg font-bold {% if request.path == '/admin-system/profile/' %} text-orange-500 font-bold{% endif %}">
-                {{display_name}}
+  <body>
+    <div class="flex flex-col h-screen">
+      <!-- Main Content (Navbar + Content) -->
+      <div>
+        <!-- Navbar (Full Width) -->
+        <div class="navbar bg-base-100 w-full border-b-2 border-base-900">
+          <a href="{% url 'profile' %}">
+            <div
+              tabindex="0"
+              role="button"
+              class="btn btn-ghost btn-circle avatar"
+            >
+              <div class="w-10 rounded-full">
+                <img
+                  alt="Tailwind CSS Navbar component"
+                  src="{% if profile_image %}{{ profile_image.url }}{% else %}{% static 'Profile.jpg' %}{% endif %}"
+                />
               </div>
-              <div class="text-xs text-gray-900">{{role}}</div>
+            </div>
+            <div class="pl-4">
+              <div class="flex flex-col">
+                <div
+                  class="text-lg font-bold {% if request.path == '/admin-system/profile/' %} text-orange-500 font-bold{% endif %}"
+                >
+                  {{display_name}}
+                </div>
+                <div class="text-xs text-gray-900">{{role}}</div>
+              </div>
+            </div>
+          </a>
+
+          <div class="divider divider-horizontal"></div>
+          <div class="flex flex-row justify-between w-full">
+            <div class="font-bold ml-4">{% block heading %}{% endblock %}</div>
+            <button class="btn btn-outline btn-error mr-4" id="logout-btn">
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Page Content -->
+      </div>
+      <div class="flex flex-row h-full">
+        <!-- Sidebar (Left) -->
+        <div class="w-40 lg:w-60 bg-base-100 border-r-2 border-base-900">
+          <div class="mt-4">
+            <ul class="menu">
+              <li class="py-2">
+                <a
+                  href="{% url 'dashboard' %}"
+                  class="flex items-center {% if request.path == '/solar-system/dashboard/' %}bg-orange-100 text-orange-500 font-bold{% endif %}"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h7"
+                    />
+                  </svg>
+                  Dashboard
+                </a>
+              </li>
+              <li class="py-2">
+                <a
+                  href="{% url 'users_management' %}"
+                  class="flex items-center {% if '/solar-system/users_management' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                  Users Management
+                </a>
+              </li>
+              <li class="py-2">
+                <a
+                  href="{% url 'solar_management' %}"
+                  class="flex items-center {% if '/solar-system/solar_management/' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                  Solar Management
+                </a>
+              </li>
+              <li class="py-2">
+                <a
+                  href="{% url 'upload_history' %}"
+                  class="flex items-center {% if request.path == '/solar-system/upload_history/' %}bg-orange-100 text-orange-500 font-bold{% endif %}"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    />
+                  </svg>
+                  Upload & History
+                </a>
+              </li>
+              <li class="py-2">
+                <a
+                  href="{% url 'reports' %}"
+                  class="flex items-center {% if request.path == '/solar-system/reports/' or '/solar-system/report_detail/' in request.path or '/solar-system/report_upload/' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Reports
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div
+          class="flex-1 {% block main_content_class %}flex items-center justify-center{% endblock %}"
+        >
+          {% block outer_content %}
+          <div
+            class="w-5/6 h-full max-h-[80vh] bg-base-100 shadow-2xl p-6 rounded-xl overflow-hidden"
+          >
+            <div class="h-full overflow-y-auto pr-2">
+              {% block content %}{% endblock %}
             </div>
           </div>
-        </a>
-
-        <div class="divider divider-horizontal"></div>
-        <div class="flex flex-row justify-between w-full">
-          <div class="font-bold ml-4">{% block heading %}{% endblock %}</div>
-          <button class="btn btn-outline btn-error mr-4" id="logout-btn">
-            Logout
-          </button>
+          {% endblock %}
         </div>
       </div>
-
-      <!-- Page Content -->
     </div>
-    <div class="flex flex-row h-full">
-      <!-- Sidebar (Left) -->
-      <div class="w-40 lg:w-60 bg-base-100 border-r-2 border-base-900">
-        <div class="mt-4">
-          <ul class="menu">
-            <li class="py-2">
-              <a href="{% url 'dashboard' %}"
-                class="flex items-center {% if request.path == '/solar-system/dashboard/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-                </svg>
-                Dashboard
-              </a>
-            </li>
-            <li class="py-2">
-              <a href="{% url 'users_management' %}"
-                class="flex items-center {% if '/solar-system/users_management' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                Users Management
-              </a>
-            </li>
-            <li class="py-2">
-              <a href="{% url 'solar_management' %}"
-                class="flex items-center {% if '/solar-system/solar_management/' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                Solar Management
-              </a>
-            </li>
-            <li class="py-2">
-              <a href="{% url 'upload_history' %}"
-                class="flex items-center {% if request.path == '/solar-system/upload_history/' %}bg-orange-100 text-orange-500 font-bold{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-                Upload & History
-              </a>
-            </li>
-            <li class="py-2">
-              <a href="{% url 'reports' %}"
-                class="flex items-center {% if request.path == '/solar-system/reports/' or '/solar-system/report_detail/' in request.path or '/solar-system/report_upload/' in request.path %}bg-orange-100 text-orange-500 font-bold{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Reports
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Main Content Area -->
-      <div class="flex-1 {% block main_content_class %}flex items-center justify-center{% endblock %}">
-        {% block outer_content %}
-        <div class="w-5/6 h-5/6 bg-base-100 shadow-2xl p-6 rounded-xl overflow-y-auto">
-          {% block content %}{% endblock %}
-        </div>
-        {% endblock %}
+    {# Modal in profile #}
+    <div
+      id="editModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white p-6 rounded-xl shadow-lg w-80">
+        <h3 class="text-xl font-semibold mb-4">Edit Username</h3>
+        <form method="POST" action="{% url 'update_display_name' %}">
+          {% csrf_token %}
+          <input
+            type="text"
+            name="display_name"
+            placeholder="New Display Name"
+            class="border border-gray-300 rounded w-full p-2 mb-4"
+            required
+          />
+          <div class="flex justify-end gap-2">
+            <button
+              type="button"
+              onclick="closeModal()"
+              class="px-4 py-2 bg-gray-300 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Save
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  </div>
-  {# Modal in profile #}
-  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white p-6 rounded-xl shadow-lg w-80">
-      <h3 class="text-xl font-semibold mb-4">Edit Username</h3>
-      <form method="POST" action="{% url 'update_display_name' %}">
-        {% csrf_token %}
-        <input type="text" name="display_name" placeholder="New Display Name"
-          class="border border-gray-300 rounded w-full p-2 mb-4" required />
-        <div class="flex justify-end gap-2">
-          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded">
-            Cancel
-          </button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
-            Save
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</body>
+  </body>
 
-<script>
-  const tokenLocal = localStorage.getItem("access_token");
-  const tokenCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("access_token="));
-  const token = tokenCookie ? tokenCookie.split("=")[1] : null;
+  <script>
+    const tokenLocal = localStorage.getItem("access_token");
+    const tokenCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("access_token="));
+    const token = tokenCookie ? tokenCookie.split("=")[1] : null;
 
-  if (!tokenLocal && !token) {
-    window.location.href = "/login/";
-  }
+    if (!tokenLocal && !token) {
+      window.location.href = "/login/";
+    }
 
-  document
-    .getElementById("logout-btn")
-    .addEventListener("click", function () {
-      const refreshToken = localStorage.getItem("refresh_token");
+    document
+      .getElementById("logout-btn")
+      .addEventListener("click", function () {
+        const refreshToken = localStorage.getItem("refresh_token");
 
-      // Send request to Django API to blacklist refresh token
-      fetch("/api/logout/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh: refreshToken }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Logout response:", data);
+        // Send request to Django API to blacklist refresh token
+        fetch("/api/logout/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refresh: refreshToken }),
         })
-        .catch((error) => {
-          console.error("Logout API error:", error);
-        })
-        .finally(() => {
-          // Clear tokens from localStorage
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          localStorage.removeItem("username");
-          localStorage.removeItem("role");
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Logout response:", data);
+          })
+          .catch((error) => {
+            console.error("Logout API error:", error);
+          })
+          .finally(() => {
+            // Clear tokens from localStorage
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
 
-          document.cookie =
-            "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; samesite=Lax";
+            document.cookie =
+              "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; samesite=Lax";
 
-          // Redirect to login page
-          window.location.href = "/login/";
-        });
-    });
+            // Redirect to login page
+            window.location.href = "/login/";
+          });
+      });
 
-  function openModal() {
-    document.getElementById("editModal").classList.remove("hidden");
-  }
+    function openModal() {
+      document.getElementById("editModal").classList.remove("hidden");
+    }
 
-  function closeModal() {
-    document.getElementById("editModal").classList.add("hidden");
-  }
-</script>
-
+    function closeModal() {
+      document.getElementById("editModal").classList.add("hidden");
+    }
+  </script>
 </html>
