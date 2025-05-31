@@ -14,6 +14,7 @@ from .models import *
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from myadmin.decorators import role_required
+from django.views.decorators.csrf import csrf_exempt
 
 # Users & Profile Management
 
@@ -69,29 +70,32 @@ def upload_profile_image(request):
         custom_user.save()
     return redirect('profile')
 
-
-# Dashboard & Management Pages
 def dashboard(request):
     powerplants = PowerPlant.objects.all()
-
-    # Build a dictionary of all powerplant data
     powerplant_data = []
 
     for plant in powerplants:
+        panel_count = SolarCell.objects.filter(zone__powerplant=plant).count()
         reports = Report.objects.filter(powerplant=plant).order_by('createdAt')
-        report_data = [
-            {
+
+        report_data = []
+        for r in reports:
+            energy = r.energy_generated
+            unusable_count = CellEfficiency.objects.filter(
+                report_result__report=r,
+                efficiency_percentage__lt=0.5
+            ).count()
+            report_data.append({
                 "date": r.createdAt.strftime("%Y-%m-%d"),
-                "energy": r.energy_generated
-            }
-            for r in reports
-        ]
+                "energy": energy,
+                "unusable": unusable_count
+            })
 
         powerplant_data.append({
             "id": plant.id,
             "name": plant.name,
-            "zone": plant.zone.name if hasattr(plant, 'zone') else "",
-            "panel": plant.panel.name if hasattr(plant, 'panel') else "",
+            "panel_count": panel_count,
+            "report_count": reports.count(),
             "reports": report_data
         })
 
@@ -416,3 +420,26 @@ def report_upload(request, report_id):
         'powerplant': powerplant,
     }
     return render(request, 'upload_report.html', context)
+
+@csrf_exempt
+def get_total_power(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        powerplant_ids = data.get('powerplant_ids', [])
+        
+        if not powerplant_ids:
+            return JsonResponse({'total_energy': 0})
+        
+        # Get latest energy_generated for each selected powerplant
+        total_energy = 0
+        for plant_id in powerplant_ids:
+            latest_report = Report.objects.filter(
+                powerplant_id=plant_id
+            ).order_by('-createdAt').first()
+            
+            if latest_report and latest_report.energy_generated:
+                total_energy += latest_report.energy_generated
+        
+        return JsonResponse({'total_energy': total_energy})
+    
+    return JsonResponse({'error': 'Invalid request'})
