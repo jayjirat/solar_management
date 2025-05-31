@@ -131,31 +131,19 @@
     <!-- (ตัวอย่าง) PowerPlant Comparison Section (Chart) -->
     <div class="card bg-base-100 shadow-xl mb-6">
       <div class="card-body">
-        <!-- Powerplant Stats (ไม่แก้ไขในตัวอย่างนี้) -->
-        <div class="grid grid-cols-5 gap-4 mb-4">
-          {% for powerplant in powerplants %}
-          <div class="stat bg-base-200 rounded-box p-2">
-            <div class="stat-title">{{ powerplant.name }}</div>
-            <div class="stat-value text-xl font-medium">
-              {% if powerplant.current_power %}
-                {{ powerplant.current_power }}W
-              {% else %}
-                No data
-              {% endif %}
+        <!-- Powerplant Stats Section -->
+        <div id="powerplant-stats-container" class="grid grid-cols-5 gap-4 mb-4">
+          {% if powerplants %}
+            {# เว้นว่างไว้ให้ JavaScript มาสร้างการ์ดในภายหลัง #}
+          {% else %}
+            <div class="stat bg-base-200 rounded-box p-2">
+              <div class="stat-title">No powerplants</div>
+              <div class="stat-value text-xl font-medium">No data</div>
             </div>
-            <div class="stat-desc {% if powerplant.power_change > 0 %}text-success{% elif powerplant.power_change < 0 %}text-error{% endif %}">
-              {% if powerplant.power_change %}
-                {% if powerplant.power_change > 0 %}+{% endif %}{{ powerplant.power_change }}%
-              {% endif %}
-            </div>
-          </div>
-          {% empty %}
-          <div class="stat bg-base-200 rounded-box p-2">
-            <div class="stat-title">No powerplants</div>
-            <div class="stat-value text-xl font-medium">No data</div>
-          </div>
-          {% endfor %}
+          {% endif %}
         </div>
+
+
 
         <!-- Powerplant Chart -->
         <div class="w-full h-64">
@@ -170,28 +158,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-  // 1) ดึง JSON ข้อมูลทุก PowerPlant จาก Django Template
+  // 1) รับ JSON ของ PowerPlant ทั้งหมดจาก Django Template
   const allPowerplantData = {{ powerplant_json|safe }};
 
-  // ตัวแปรเก็บออบเจ็กต์ Chart.js (สมมติว่า initialize เอาไว้แล้ว)
+  // 2) สร้าง Chart.js เปล่า ๆ (เหมือนเดิม)
   let powerplantChart = null;
-
-  // ฟังก์ชันสำหรับสร้างสี (ใช้ซ้ำกับ Chart, แต่ถ้าจะปรับเองก็ได้)
-  function getRandomColor(index) {
-    const colors = [
-      'rgba(75, 192, 192, 1)',
-      'rgba(255, 99, 132, 1)',
-      'rgba(255, 205, 86, 1)',
-      'rgba(54, 162, 235, 1)',
-      'rgba(153, 102, 255, 1)',
-      'rgba(255, 159, 64, 1)',
-      'rgba(201, 203, 207, 1)'
-    ];
-    return colors[index % colors.length];
-  }
-
-  // 2) ตั้งค่า Default Date Range (วันนี้ถึงวันนี้)
   document.addEventListener('DOMContentLoaded', function() {
+    initPowerplantChart();
+
+    // ตั้ง Default Date Range (หากอยากให้เริ่มด้วยช่วงว่าง ให้ไม่เซ็ตค่าใดๆ)
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -202,19 +177,17 @@
     document.getElementById('startTime').value = "00:00";
     document.getElementById('endTime').value = "23:59";
 
-    // เรียกฟังก์ชันในครั้งแรก เพื่อแสดงค่า default
+    updateDateRangeDisplay(formatted, "00:00", formatted, "23:59");
     updateDashboardData();
-    initPowerplantChart();  // สร้าง Chart เปล่าๆ ไว้ก่อน
   });
 
-  // 3) ฟังก์ชันสร้าง Chart.js เบื้องต้น (empty dataset, รอ update ด้วย updateDashboardData())
   function initPowerplantChart() {
     const ctx = document.getElementById('powerplantChart').getContext('2d');
     powerplantChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: [],       // ยังไม่ได้ set labels
-        datasets: []      // ยังไม่มี data
+        labels: [],
+        datasets: []
       },
       options: {
         responsive: true,
@@ -228,7 +201,6 @@
     });
   }
 
-  // 4) ฟังก์ชันช่วย Format ข้อความวันที่ (ใส่เวลา)
   function formatDateTime(dateObj) {
     return dateObj.toLocaleString('en-US', {
       month: 'short',
@@ -240,155 +212,192 @@
     });
   }
 
-  // อัพเดตตัวแสดง Range บนปุ่ม
   function updateDateRangeDisplay(startDate, startTime, endDate, endTime) {
-    const start = new Date(`${startDate}T${startTime}`);
-    const end = new Date(`${endDate}T${endTime}`);
-    const txt = `${formatDateTime(start)} - ${formatDateTime(end)}`;
+    const s = new Date(`${startDate}T${startTime}`);
+    const e = new Date(`${endDate}T${endTime}`);
+    const txt = `${formatDateTime(s)} - ${formatDateTime(e)}`;
     document.getElementById('dateRangeText').textContent = `: ${txt}`;
   }
 
-  // 5) ฟังก์ชันเมื่อคลิก “Apply” ใน Date Range Dropdown
   function applyCustomDateRange() {
     const sDate = document.getElementById('startDate').value;
     const eDate = document.getElementById('endDate').value;
     const sTime = document.getElementById('startTime').value;
     const eTime = document.getElementById('endTime').value;
-
     if (!sDate || !eDate) {
       alert('กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด');
       return;
     }
-
-    const startDt = new Date(`${sDate}T${sTime}`);
-    const endDt = new Date(`${eDate}T${eTime}`);
-
-    if (startDt > endDt) {
+    const dtS = new Date(`${sDate}T${sTime}`);
+    const dtE = new Date(`${eDate}T${eTime}`);
+    if (dtS > dtE) {
       alert('ช่วงเวลาเริ่มต้นต้องไม่เกินช่วงเวลาสิ้นสุด');
       return;
     }
-
     updateDateRangeDisplay(sDate, sTime, eDate, eTime);
-
-    // เรียกอัพเดตข้อมูลใหม่
     updateDashboardData();
   }
 
-  // 6) ฟังก์ชันหลัก: คำนวณค่า Total ทั้งหมด + อัพเดต Chart
+  // 3) ฟังก์ชันหลัก: คำนวณและแสดงสถิติ รวมถึงอัปเดต Chart
   function updateDashboardData() {
     // (a) ดึง IDs ของ PowerPlant ที่ถูกติ๊กเลือก
-    const selectedPlantIds = Array.from(document.querySelectorAll('.powerplant-checkbox'))
-      .filter(cb => cb.checked)
-      .map(cb => parseInt(cb.value));
+    const selectedPlantIds = Array.from(
+      document.querySelectorAll('.powerplant-checkbox:checked')
+    ).map(cb => parseInt(cb.value));
 
-    // (b) ดึงช่วงเวลาที่เลือก
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    const startTime = document.getElementById('startTime').value;
-    const endTime = document.getElementById('endTime').value;
+    // (b) ดึงช่วงเวลาที่เลือก (Date + Time)
+    const startDateVal = document.getElementById("startDate").value;
+    const endDateVal = document.getElementById("endDate").value;
+    const startTimeVal = document.getElementById("startTime").value;
+    const endTimeVal = document.getElementById("endTime").value;
+    const dtStart = new Date(`${startDateVal}T${startTimeVal}`);
+    const dtEnd = new Date(`${endDateVal}T${endTimeVal}`);
 
-    // สร้างตัวแปร Date เพื่อคำนวณเปรียบเทียบ
-    const dtStart = new Date(`${startDate}T${startTime}`);
-    const dtEnd = new Date(`${endDate}T${endTime}`);
+    // --- สรุปค่าสถิติรวม (Summary Cards) ---
+    let totalPower    = 0;
+    let totalPanels   = 0;
+    let totalReports  = 0;
+    let totalUnusable = 0;
 
-    let totalPower = 0;           
-    let totalPanels = 0;  
-    let totalReports = 0;         
-    let totalUnusable = 0;        // นับจำนวน CellEfficiency ที่ efficiency<0.5
-
-    // (c) Loop ข้อมูลใน allPowerplantData เพื่อกรองตาม plantId และช่วงเวลา
-    //     array สำหรับ Chart ด้วย (labels แต่ละวัน + data ของแต่ละ powerplant)
-    // --------------------------------------------
-    // ขั้นตอนย่อย:
-    //  1) กรองเฉพาะ Plant ที่ถูกเลือก
-    //  2) แต่ละ Plant: นับ panel_count เพิ่มใน totalPanels
-    //  3) แต่ละ Report ของ Plant: เช็ค date ว่าอยู่ในช่วง dtStart <= date <= dtEnd
-    //     ถ้าใช่:
-    //       - totalReports += 1
-    //       - totalPower += report.energy
-    //       - totalUnusable += report.unusable
-    //       - เก็บ date-string ลงใน Set เพื่อสร้าง labels chart (กรณีจะวาดกราฟ)
-    //       - เก็บ energy ใน dataSet ของ Plant ตัวนั้น
-    // --------------------------------------------
-
-    // เก็บ labels ชั่วคราวแบบไม่ซ้ำ
+    // --- เตรียม Chart data ---
     const allDatesSet = new Set();
+    const chartDatasetsTemp = [];
 
-    // เก็บ dataset แต่ละ Plant สำหรับ Chart
-    const chartDatasets = [];
+    // --- เตรียม Powerplant Stats container ให้ว่างก่อน (จะเติมใหม่) ---
+    const statsContainer = document.getElementById('powerplant-stats-container');
+    statsContainer.innerHTML = '';  // เคลียร์ข้อมูลเดิมทั้งหมด
 
+    // (c) Loop ทุก PowerPlant ใน JSON
     allPowerplantData.forEach((plant, idx) => {
+      // ถ้าโรงไฟฟ้านี้ไม่ได้ถูกติ๊ก หรือ plant.id ไม่อยู่ใน selectedPlantIds ให้ข้าม
       if (!selectedPlantIds.includes(plant.id)) return;
 
-      // 2) นับ panel_count ของ Plant นี้
+      // 1) นับ panel_count รวมใน Summary Cards
       totalPanels += plant.panel_count;
 
-      // สร้างตัวแปรเก็บ data ของ Chart ผลรายวัน (อาจจะ push energy หลายๆ วันที่ต่างกัน)
-      const dataEntries = [];
+      // 2) กรองเฉพาะ report ที่ date อยู่ในช่วง dtStart..dtEnd
+      const filteredReports = plant.reports.filter(r => {
+        const repDate = new Date(r.date);
+        return repDate >= dtStart && repDate <= dtEnd;
+      });
+      console.log("   filteredReports:", filteredReports);
 
-      plant.reports.forEach(report => {
-        // แปลง string date จาก report มาเป็น Date object (midnight)
-        const repDate = new Date(report.date); 
-        // เอาเวลาออก (หากต้องการให้ compare เฉพาะวันที่ไม่สนเวลา)
-        // แต่เพราะเราแปลงเป็น YYYY-MM-DD, เลยถือว่าเวลาเป็น 00:00:00 อัตโนมัติ
+      // 3) คำนวณสถิติขั้นพื้นฐานสำหรับโรงไฟฟ้า (Powerplant Stats)
+      //    - energySum (รวม energy ของโรงไฟฟ้านี้ในช่วงที่เลือก)
+      //    - lastEnergy (ค่า energy ของรายงานวันล่าสุดในช่วงนั้น)
+      //    - powerChange (ถ้าต้องการคำนวณ % เปลี่ยนแปลง)
+      let energySum = 0;
+      let lastEnergy = 0;
+      let powerChange = null;
 
-        // เช็คว่า date อยู่ในช่วง dtStart..dtEnd หรือไม่
-        if (repDate >= dtStart && repDate <= dtEnd) {
-          totalReports += 1;
-          totalPower += report.energy;
-          totalUnusable += report.unusable;
+      if (filteredReports.length > 0) {
+        // (a) รวม energy ของทุก report ในช่วง
+        filteredReports.forEach(r => {
+          energySum += r.energy;
+        });
 
-          allDatesSet.add(report.date);
+        // (b) หา last report ในช่วง (เรียงตามวันที่ใน filteredReports)
+        filteredReports.sort((a, b) => new Date(a.date) - new Date(b.date));
+        lastEnergy = filteredReports[filteredReports.length - 1].energy;
 
-          dataEntries.push({
-            date: report.date,
-            energy: report.energy
-          });
+        totalPower += energySum;
+
+        // (c) หาค่า energy ก่อนหน้าช่วง หรือก่อนรายงานล่าสุดในช่วง เพื่อคำนวณเปอร์เซ็นต์เปลี่ยนแปลง
+        //     เราดึงข้อมูล original reports ทั้งหมด แล้วหา index ของ last date ในรายงานเต็ม จากนั้นดูรายการก่อนหน้า
+        const allDatesOfPlant = plant.reports.map(r => r.date).sort((a, b) => new Date(a) - new Date(b));
+        const lastDateInRange = filteredReports[filteredReports.length - 1].date;
+        const indexInAll = allDatesOfPlant.indexOf(lastDateInRange);
+
+        if (indexInAll > 0) {
+          // หา report record ก่อนหน้า (นอกช่วง หรือ ในช่วงก็ได้ แต่เราดูเฉพาะวันที่ก่อน)
+          const prevDate = allDatesOfPlant[indexInAll - 1];
+          // หา energy ของวันที่ prevDate (จาก plant.reports)
+          const prevRecord = plant.reports.find(r => r.date === prevDate);
+          if (prevRecord) {
+            const prevEnergy = prevRecord.energy;
+            // ถ้า prevEnergy ไม่เป็น 0 ให้คำนวณ % เปลี่ยนแปลง
+            if (prevEnergy !== 0) {
+              powerChange = ((lastEnergy - prevEnergy) / prevEnergy) * 100;
+              powerChange = Math.round(powerChange * 100) / 100; // ปัดทศนิยม 2 ตำแหน่ง
+            }
+          }
         }
+      }
+
+      // (d) เติม “Powerplant Stats” การ์ดของโรงไฟฟ้านี้
+      const statCard = document.createElement('div');
+      statCard.className = 'stat bg-base-200 rounded-box p-2';
+      statCard.innerHTML = `
+        <div class="stat-title">${plant.name}</div>
+        <div class="stat-value text-xl font-medium">
+          ${ lastEnergy > 0 ? `${lastEnergy.toLocaleString()}W` : '0W' }
+        </div>
+        <div class="stat-desc ${ powerChange > 0 ? 'text-success' : (powerChange < 0 ? 'text-error' : '') }">
+          ${ powerChange !== null ? 
+             (powerChange > 0 ? '+' : '') + powerChange.toLocaleString(undefined, { minimumFractionDigits: 2 }) + '%' 
+             : '' 
+          }
+        </div>
+      `;
+      statsContainer.appendChild(statCard);
+
+      // (e) สะสมค่าสถิติรวม เพื่ออัปเดต Summary Cards ด้านบน
+      totalReports += filteredReports.length;
+      filteredReports.forEach(r => {
+        totalUnusable += r.unusable;
+        allDatesSet.add(r.date);
       });
 
-      // สร้าง dataset รูปแบบที่ Chart.js ต้องการ (จะแปลงให้เป็น array ตาม labels ด้านล่าง)
-      chartDatasets.push({
-        powerplantId: plant.id,
-        label: plant.name,
-        rawData: dataEntries,   // เก็บข้อมูลดิบไว้ก่อน แล้วจะ map เป็น array ตาม labels
-        borderColor: getRandomColor(idx),
-        tension: 0.3
+      // (f) เตรียมข้อมูลเบื้องต้นสำหรับ Chart.js
+      const dataEntries = filteredReports.map(r => ({ date: r.date, energy: r.energy }));
+      chartDatasetsTemp.push({
+        plantName: plant.name,
+        rawData: dataEntries,
+        color: getRandomColor(idx)
       });
     });
 
-    // (d) แปลง allDatesSet ให้เป็น array ที่เรียงตามวันที่ (ascending)
+    // (d) อัปเดต Chart.js เหมือนเดิม
     const sortedLabels = Array.from(allDatesSet).sort((a, b) => new Date(a) - new Date(b));
-
-    // (e) เตรียม data array สำหรับแต่ละ dataset ให้ตรงกับลำดับวันที่ใน sortedLabels
-    const finalDatasets = chartDatasets.map(ds => {
-      // สร้าง array ค่าว่างทั้งหมด ก่อน แล้ว map เติมค่าจริงลงตาม sortedLabels
-      const dataArray = sortedLabels.map(labDate => {
-        // หา record ที่ตรงกับ labDate
-        const matched = ds.rawData.find(e => e.date === labDate);
-        return matched ? matched.energy : 0;
+    const finalDatasets = chartDatasetsTemp.map(ds => {
+      const dataArr = sortedLabels.map(labDate => {
+        const found = ds.rawData.find(e => e.date === labDate);
+        return found ? found.energy : 0;
       });
       return {
-        label: ds.label,
-        data: dataArray,
-        borderColor: ds.borderColor,
-        tension: ds.tension
+        label: ds.plantName,
+        data: dataArr,
+        borderColor: ds.color,
+        backgroundColor: 'transparent',
+        tension: 0.3
       };
     });
-
-    // 7) อัพเดต Chart.js
     if (powerplantChart) {
       powerplantChart.data.labels = sortedLabels;
       powerplantChart.data.datasets = finalDatasets;
       powerplantChart.update();
     }
 
-    // 8) อัพเดตตัวเลข Summary Cards ลงใน HTML
-    const fmt = new Intl.NumberFormat('en-US'); // ใช้แปลงหลักพันใส่ comma
-    document.getElementById('total-power-value').innerText = `${fmt.format(totalPower)} W`;
-    document.getElementById('total-panel-value').innerText = totalPanels;
-    document.getElementById('total-reports-value').innerText = totalReports;
-    document.getElementById('total-unusable-value').innerText = totalUnusable;
+    // (e) อัปเดต Summary Cards ด้านบน
+    const fmt = new Intl.NumberFormat('en-US');
+    document.getElementById('total-power-value').innerText    = `${fmt.format(totalPower)}W`;
+    document.getElementById('total-panel-value').innerText    = fmt.format(totalPanels);
+    document.getElementById('total-reports-value').innerText  = fmt.format(totalReports);
+    document.getElementById('total-unusable-value').innerText = fmt.format(totalUnusable);
+  }
+
+  // 4) ฟังก์ชันสร้างสี (เดิม)
+  function getRandomColor(index) {
+    const colors = [
+      'rgba(75, 192, 192, 1)',
+      'rgba(255, 99, 132, 1)',
+      'rgba(255, 205, 86, 1)',
+      'rgba(54, 162, 235, 1)',
+      'rgba(153, 102, 255, 1)',
+      'rgba(255, 159, 64, 1)',
+      'rgba(201, 203, 207, 1)'
+    ];
+    return colors[index % colors.length];
   }
 </script>
 {% endblock %}

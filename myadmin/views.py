@@ -71,34 +71,22 @@ def upload_profile_image(request):
     return redirect('profile')
 
 def dashboard(request):
-    # 1) ดึง PowerPlant ทั้งหมด
     powerplants = PowerPlant.objects.all()
-
     powerplant_data = []
 
     for plant in powerplants:
-        # 2) นับจำนวนแผงโซลาร์เซลล์ทั้งหมดของแต่ละ PowerPlant
-        #    (เช็คจาก SolarCell ที่อยู่ใน Zone ของ PowerPlant นั้น)
         panel_count = SolarCell.objects.filter(zone__powerplant=plant).count()
-
-        # 3) ดึง Report ทั้งหมดของ PowerPlant ตัวนั้น เรียงตามวันที่สร้าง (createdAt)
         reports = Report.objects.filter(powerplant=plant).order_by('createdAt')
 
         report_data = []
         for r in reports:
-            # a) energy ที่เก็บไว้ใน Report แต่ละอัน
             energy = r.energy_generated
-
-            # b) นับ Unusable Panel ใน Report นั้น:
-            #    คือ count CellEfficiency ที่อยู่ใน ReportResult ของ Report ตัวนี้
-            #    และมีค่า efficiency_percentage < 0.5
             unusable_count = CellEfficiency.objects.filter(
                 report_result__report=r,
                 efficiency_percentage__lt=0.5
             ).count()
-
             report_data.append({
-                "date": r.createdAt.strftime("%Y-%m-%d"),  # Format เป็น "YYYY-MM-DD"
+                "date": r.createdAt.strftime("%Y-%m-%d"),
                 "energy": energy,
                 "unusable": unusable_count
             })
@@ -111,9 +99,6 @@ def dashboard(request):
             "reports": report_data
         })
 
-    print(f"[DEBUG] powerplant_data = {powerplant_data}")
-
-    # 4) ส่ง JSON ของ powerplant_data ไปให้ Front-end ใช้งาน
     return render(request, 'dashboard.html', {
         "powerplants": powerplants,
         "powerplant_json": json.dumps(powerplant_data, cls=DjangoJSONEncoder)
