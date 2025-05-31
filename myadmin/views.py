@@ -14,6 +14,7 @@ from .models import *
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from myadmin.decorators import role_required
+from django.views.decorators.csrf import csrf_exempt
 
 # Users & Profile Management
 
@@ -69,32 +70,50 @@ def upload_profile_image(request):
         custom_user.save()
     return redirect('profile')
 
-
-# Dashboard & Management Pages
 def dashboard(request):
+    # 1) ดึง PowerPlant ทั้งหมด
     powerplants = PowerPlant.objects.all()
 
-    # Build a dictionary of all powerplant data
     powerplant_data = []
 
     for plant in powerplants:
+        # 2) นับจำนวนแผงโซลาร์เซลล์ทั้งหมดของแต่ละ PowerPlant
+        #    (เช็คจาก SolarCell ที่อยู่ใน Zone ของ PowerPlant นั้น)
+        panel_count = SolarCell.objects.filter(zone__powerplant=plant).count()
+
+        # 3) ดึง Report ทั้งหมดของ PowerPlant ตัวนั้น เรียงตามวันที่สร้าง (createdAt)
         reports = Report.objects.filter(powerplant=plant).order_by('createdAt')
-        report_data = [
-            {
-                "date": r.createdAt.strftime("%Y-%m-%d"),
-                "energy": r.energy_generated
-            }
-            for r in reports
-        ]
+
+        report_data = []
+        for r in reports:
+            # a) energy ที่เก็บไว้ใน Report แต่ละอัน
+            energy = r.energy_generated
+
+            # b) นับ Unusable Panel ใน Report นั้น:
+            #    คือ count CellEfficiency ที่อยู่ใน ReportResult ของ Report ตัวนี้
+            #    และมีค่า efficiency_percentage < 0.5
+            unusable_count = CellEfficiency.objects.filter(
+                report_result__report=r,
+                efficiency_percentage__lt=0.5
+            ).count()
+
+            report_data.append({
+                "date": r.createdAt.strftime("%Y-%m-%d"),  # Format เป็น "YYYY-MM-DD"
+                "energy": energy,
+                "unusable": unusable_count
+            })
 
         powerplant_data.append({
             "id": plant.id,
             "name": plant.name,
-            "zone": plant.zone.name if hasattr(plant, 'zone') else "",
-            "panel": plant.panel.name if hasattr(plant, 'panel') else "",
+            "panel_count": panel_count,
+            "report_count": reports.count(),
             "reports": report_data
         })
 
+    print(f"[DEBUG] powerplant_data = {powerplant_data}")
+
+    # 4) ส่ง JSON ของ powerplant_data ไปให้ Front-end ใช้งาน
     return render(request, 'dashboard.html', {
         "powerplants": powerplants,
         "powerplant_json": json.dumps(powerplant_data, cls=DjangoJSONEncoder)
@@ -416,3 +435,26 @@ def report_upload(request, report_id):
         'powerplant': powerplant,
     }
     return render(request, 'upload_report.html', context)
+
+@csrf_exempt
+def get_total_power(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        powerplant_ids = data.get('powerplant_ids', [])
+        
+        if not powerplant_ids:
+            return JsonResponse({'total_energy': 0})
+        
+        # Get latest energy_generated for each selected powerplant
+        total_energy = 0
+        for plant_id in powerplant_ids:
+            latest_report = Report.objects.filter(
+                powerplant_id=plant_id
+            ).order_by('-createdAt').first()
+            
+            if latest_report and latest_report.energy_generated:
+                total_energy += latest_report.energy_generated
+        
+        return JsonResponse({'total_energy': total_energy})
+    
+    return JsonResponse({'error': 'Invalid request'})

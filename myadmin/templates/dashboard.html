@@ -10,41 +10,40 @@
   <div class="grid grid-cols-1">
     <!-- Top Row with Selectors -->
     <div class="flex justify-between items-center p-4 border-b">
-      <!-- Select Powerplant Dropdown -->
+      <!-- (1) Select Powerplant Dropdown -->
       <div class="dropdown dropdown-end">
-      <div tabindex="0" role="button" class="btn btn-outline">Select Powerplants</div>
-      <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
+        <div tabindex="0" role="button" class="btn btn-outline">Select Powerplants</div>
+        <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box" style="width: 150px;">
           {% if powerplants %}
-              {% for powerplant in powerplants %}
-              <div class="form-control">
-                  <label class="label cursor-pointer">
-                      <span class="label-text">{{ powerplant.name }}</span>
-                      <input type="checkbox" class="checkbox powerplant-checkbox" value="{{ powerplant.id }}" checked />
-                  </label>
-              </div>
-              {% endfor %}
+            {% for powerplant in powerplants %}
+            <div class="form-control">
+              <label class="label cursor-pointer flex justify-between items-center">
+                <span class="label-text">{{ powerplant.name }}</span>
+                <input type="checkbox" class="checkbox powerplant-checkbox" value="{{ powerplant.id }}" checked />
+              </label>
+            </div>
+            {% endfor %}
           {% else %}
-              <div class="form-control">
-                  <p class="text-sm text-gray-500 p-2">No powerplants available</p>
-              </div>
+            <div class="form-control">
+              <p class="text-sm text-gray-500 p-2">No powerplants available</p>
+            </div>
           {% endif %}
           <div class="divider my-1"></div>
-          <button class="btn btn-primary btn-sm" onclick="updatePowerplantChart()">Apply</button>
-      </div>
+          <button class="btn btn-primary btn-sm w-full" onclick="updateDashboardData()">Apply</button>
+        </div>
       </div>
       
-      <!-- Date Range Picker -->
+      <!-- (2) Date Range Picker -->
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-outline flex items-center gap-2">
           <span class="text-orange-500">Range</span>
-          <span id="dateRangeText">: Apr 25, 2018 12:00 AM - Apr 26, 2018 12:00 AM</span>
+          <span id="dateRangeText">: –</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
         <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-96">
           <div class="p-2">
-            
             <div class="grid grid-cols-2 gap-2">
               <div>
                 <label class="label">Start Date</label>
@@ -68,33 +67,25 @@
         </div>
       </div>
     </div>
-
-    
-
+  </div>
+  
   <!-- Main Content -->
   <div class="flex-1 p-4">
-    <!-- Summary Cards -->
+    <!-- Summary Cards (ปรับให้มี ID เพื่ออัพเดตค่าได้ด้วย JS) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
+      
       <!-- Total Power Card -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-4">
           <div class="flex justify-between">
             <h2 class="card-title text-base">Total Power</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">
-            {% if total_power %}
-              {{ total_power|floatformat:0|intcomma }}W
-            {% else %}
-              0W
-            {% endif %}
-          </p>
+          <p id="total-power-value" class="text-2xl font-bold mt-2">0 W</p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
         </div>
       </div>
-
 
       <!-- Total Panel Card -->
       <div class="card bg-base-100 shadow-xl">
@@ -102,7 +93,7 @@
           <div class="flex justify-between">
             <h2 class="card-title text-base">Total Panel</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">0</p>
+          <p id="total-panel-value" class="text-2xl font-bold mt-2">0</p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
@@ -115,241 +106,77 @@
           <div class="flex justify-between">
             <h2 class="card-title text-base">Total Reports</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">0</p>
+          <p id="total-reports-value" class="text-2xl font-bold mt-2">0</p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
         </div>
       </div>
 
-      <!-- Total Unusable panel Card -->
-    <div class="card bg-base-100 shadow-xl">
+      <!-- Total Unusable Panel Card -->
+      <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-4">
           <div class="flex justify-between">
-            <h2 class="card-title text-base">Total Unusable panel</h2>
+            <h2 class="card-title text-base">Unusable Panel</h2>
           </div>
-          <p class="text-4xl font-bold mt-2">0</p>
+          <p id="total-unusable-value" class="text-2xl font-bold mt-2">0</p>
           <div class="card-actions justify-end mt-2">
             <button class="btn btn-sm btn-ghost text-primary">View detail</button>
           </div>
         </div>
       </div>
 
-      
     </div>
 
-    
-
-    <!-- Powerplant Comparison Section -->
+    <!-- (ตัวอย่าง) PowerPlant Comparison Section (Chart) -->
     <div class="card bg-base-100 shadow-xl mb-6">
       <div class="card-body">
-        
-          
-        
-        <!-- Powerplant Stats -->
+        <!-- Powerplant Stats (ไม่แก้ไขในตัวอย่างนี้) -->
         <div class="grid grid-cols-5 gap-4 mb-4">
           {% for powerplant in powerplants %}
           <div class="stat bg-base-200 rounded-box p-2">
-              <div class="stat-title">{{ powerplant.name }}</div>
-              <div class="stat-value text-xl font-medium">
-                  {% if powerplant.current_power %}
-                      {{ powerplant.current_power }}W
-                  {% else %}
-                      No data
-                  {% endif %}
-              </div>
-              <div class="stat-desc {% if powerplant.power_change > 0 %}text-success{% elif powerplant.power_change < 0 %}text-error{% endif %}">
-                  {% if powerplant.power_change %}
-                      {% if powerplant.power_change > 0 %}+{% endif %}{{ powerplant.power_change }}%
-                  {% endif %}
-              </div>
+            <div class="stat-title">{{ powerplant.name }}</div>
+            <div class="stat-value text-xl font-medium">
+              {% if powerplant.current_power %}
+                {{ powerplant.current_power }}W
+              {% else %}
+                No data
+              {% endif %}
+            </div>
+            <div class="stat-desc {% if powerplant.power_change > 0 %}text-success{% elif powerplant.power_change < 0 %}text-error{% endif %}">
+              {% if powerplant.power_change %}
+                {% if powerplant.power_change > 0 %}+{% endif %}{{ powerplant.power_change }}%
+              {% endif %}
+            </div>
           </div>
           {% empty %}
           <div class="stat bg-base-200 rounded-box p-2">
-              <div class="stat-title">No powerplants</div>
-              <div class="stat-value text-xl font-medium">No data</div>
+            <div class="stat-title">No powerplants</div>
+            <div class="stat-value text-xl font-medium">No data</div>
           </div>
           {% endfor %}
         </div>
 
-
-        
         <!-- Powerplant Chart -->
         <div class="w-full h-64">
           <canvas id="powerplantChart"></canvas>
         </div>
       </div>
     </div>
-
-    <!-- Hourly Power Report Section
-    <div class="card bg-base-100 shadow-xl">
-      <div class="card-body">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="card-title">Hourly Power Report</h2>
-          <button class="btn btn-ghost text-primary">View All</button>
-        </div>
-        
-        <div class="flex flex-wrap gap-2 mb-4">
-          <div class="form-control">
-            <select class="select select-bordered w-full max-w-xs">
-              <option disabled selected>Select Powerplant</option>
-              {% if powerplants %}
-                {% for powerplant in powerplants %}
-                  <option value="{{ powerplant.id }}">{{ powerplant.name }}</option>
-                {% endfor %}
-              {% else %}
-                <option disabled>No powerplants available</option>
-              {% endif %}
-            </select>
-          </div>
-          
-          <div class="form-control">
-            <select class="select select-bordered w-full max-w-xs" multiple>
-              <option disabled>Select Zones</option>
-              {% if zones %}
-                {% for zone in zones %}
-                  <option value="{{ zone.id }}">{{ zone.name }}</option>
-                {% endfor %}
-              {% else %}
-                <option disabled>No zones available</option>
-              {% endif %}
-            </select>
-          </div>
-
-          <div class="form-control">
-            <select class="select select-bordered w-full max-w-xs" multiple>
-              <option disabled>Select Panels</option>
-              {% if panels %}
-                {% for panel in panels %}
-                  <option value="{{ panel.id }}">{{ panel.name }}</option>
-                {% endfor %}
-              {% else %}
-                <option disabled>No panels available</option>
-              {% endif %}
-            </select>
-          </div>
-
-          <div class="form-control">
-            <select class="select select-bordered w-full max-w-xs">
-              <option disabled selected>Select Time Range</option>
-              <option>This Day</option>
-              <option>This Week</option>
-              <option>This Month</option>
-            </select>
-          </div> -->
-
-        
-        <!-- Hourly Chart
-        <div class="w-full h-64">
-          <canvas id="hourlyChart"></canvas>
-        </div> -->
-      </div>
-    </div>
   </div>
 </div>
-</div>
 
-<!-- Include Chart.js -->
+<!-- Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+  // 1) ดึง JSON ข้อมูลทุก PowerPlant จาก Django Template
   const allPowerplantData = {{ powerplant_json|safe }};
-</script>
 
-<script>
-  // Initialize charts when the DOM is loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get powerplant data from Django template
-    const powerplantData = [
-      {% for plant in powerplant_data %}
-      {
-        id: {{ plant.id }},
-        name: "{{ plant.name }}",
-        data: {{ plant.data|safe }},
-        borderColor: getRandomColor({{ forloop.counter0 }})
-      },
-      {% endfor %}
-    ];
-    
-    // Initialize powerplant comparison chart
-    const powerplantCtx = document.getElementById('powerplantChart').getContext('2d');
-    const powerplantChart = new Chart(powerplantCtx, {
-      type: 'line',
-      data: {
-        labels: ['Mon, 20', 'Tue, 21', 'Wed, 22', 'Thu, 23', 'Fri, 24', 'Sat, 25', 'Sun, 26', 'Mon, 27', 'Tue, 28'],
-        datasets: powerplantData.map(plant => ({
-          label: plant.name,
-          data: plant.data,
-          borderColor: plant.borderColor,
-          tension: 0.3,
-          powerplantId: plant.id
-        }))
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: false,
-            min: 100,
-            max: 500
-          }
-        },
-        plugins: {
-          tooltip: {
-            mode: 'index',
-            intersect: false
-          }
-        }
-      }
-    });
-    
-    // Store chart instance for later updates
-    window.powerplantChart = powerplantChart;
-    
-    // // Initialize hourly power report chart
-    // const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
-    // const hourlyChart = new Chart(hourlyCtx, {
-    //   type: 'bar',
-    //   data: {
-    //     labels: ['1-2AM', '2-3AM', '3-4AM', '4-5AM', '5-6AM', '6-7AM', '7-8AM', '8-9AM', '9-10AM', '10-11AM', '11-12PM'],
-    //     datasets: [{
-    //       label: 'Power (W)',
-    //       data: [1500, 1800, 2200, 2500, 1800, 2000, 2400, 2800, 1700, 2100, 2431],
-    //       backgroundColor: 'rgba(54, 162, 235, 0.5)',
-    //       borderColor: 'rgba(54, 162, 235, 1)',
-    //       borderWidth: 1
-    //     }]
-    //   },
-    //   options: {
-    //     responsive: true,
-    //     maintainAspectRatio: false,
-    //     scales: {
-    //       y: {
-    //         beginAtZero: true,
-    //         max: 5000
-    //       }
-    //     }
-    //   }
-    // });
-    
-    // Set up tab functionality
-    const tabs = document.querySelectorAll('.tabs .tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('tab-active'));
-        tab.classList.add('tab-active');
-      });
-    });
-    
-    // Initialize date pickers with today's date
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
-    document.getElementById('startDate').value = formattedDate;
-    document.getElementById('endDate').value = formattedDate;
-  });
-  
-  // Function to generate consistent colors for powerplants
+  // ตัวแปรเก็บออบเจ็กต์ Chart.js (สมมติว่า initialize เอาไว้แล้ว)
+  let powerplantChart = null;
+
+  // ฟังก์ชันสำหรับสร้างสี (ใช้ซ้ำกับ Chart, แต่ถ้าจะปรับเองก็ได้)
   function getRandomColor(index) {
     const colors = [
       'rgba(75, 192, 192, 1)',
@@ -362,116 +189,206 @@
     ];
     return colors[index % colors.length];
   }
-  
-  // Date range functions
+
+  // 2) ตั้งค่า Default Date Range (วันนี้ถึงวันนี้)
+  document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const formatted = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('startDate').value = formatted;
+    document.getElementById('endDate').value = formatted;
+    document.getElementById('startTime').value = "00:00";
+    document.getElementById('endTime').value = "23:59";
+
+    // เรียกฟังก์ชันในครั้งแรก เพื่อแสดงค่า default
+    updateDashboardData();
+    initPowerplantChart();  // สร้าง Chart เปล่าๆ ไว้ก่อน
+  });
+
+  // 3) ฟังก์ชันสร้าง Chart.js เบื้องต้น (empty dataset, รอ update ด้วย updateDashboardData())
+  function initPowerplantChart() {
+    const ctx = document.getElementById('powerplantChart').getContext('2d');
+    powerplantChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],       // ยังไม่ได้ set labels
+        datasets: []      // ยังไม่มี data
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: false
+          }
+        }
+      }
+    });
+  }
+
+  // 4) ฟังก์ชันช่วย Format ข้อความวันที่ (ใส่เวลา)
+  function formatDateTime(dateObj) {
+    return dateObj.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    });
+  }
+
+  // อัพเดตตัวแสดง Range บนปุ่ม
+  function updateDateRangeDisplay(startDate, startTime, endDate, endTime) {
+    const start = new Date(`${startDate}T${startTime}`);
+    const end = new Date(`${endDate}T${endTime}`);
+    const txt = `${formatDateTime(start)} - ${formatDateTime(end)}`;
+    document.getElementById('dateRangeText').textContent = `: ${txt}`;
+  }
+
+  // 5) ฟังก์ชันเมื่อคลิก “Apply” ใน Date Range Dropdown
   function applyCustomDateRange() {
+    const sDate = document.getElementById('startDate').value;
+    const eDate = document.getElementById('endDate').value;
+    const sTime = document.getElementById('startTime').value;
+    const eTime = document.getElementById('endTime').value;
+
+    if (!sDate || !eDate) {
+      alert('กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด');
+      return;
+    }
+
+    const startDt = new Date(`${sDate}T${sTime}`);
+    const endDt = new Date(`${eDate}T${eTime}`);
+
+    if (startDt > endDt) {
+      alert('ช่วงเวลาเริ่มต้นต้องไม่เกินช่วงเวลาสิ้นสุด');
+      return;
+    }
+
+    updateDateRangeDisplay(sDate, sTime, eDate, eTime);
+
+    // เรียกอัพเดตข้อมูลใหม่
+    updateDashboardData();
+  }
+
+  // 6) ฟังก์ชันหลัก: คำนวณค่า Total ทั้งหมด + อัพเดต Chart
+  function updateDashboardData() {
+    // (a) ดึง IDs ของ PowerPlant ที่ถูกติ๊กเลือก
+    const selectedPlantIds = Array.from(document.querySelectorAll('.powerplant-checkbox'))
+      .filter(cb => cb.checked)
+      .map(cb => parseInt(cb.value));
+
+    // (b) ดึงช่วงเวลาที่เลือก
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     const startTime = document.getElementById('startTime').value;
     const endTime = document.getElementById('endTime').value;
-    
-    if (startDate && endDate) {
-      // Combine date and time
-      const start = new Date(`${startDate}T${startTime}`);
-      const end = new Date(`${endDate}T${endTime}`);
-      
-      if (start > end) {
-        alert('Start date/time cannot be after end date/time');
-        return;
-      }
-      
-      // Format the display text
-      const formattedRange = formatDateRange(start, end);
-      updateDateRangeDisplay(formattedRange);
-      
-      // Here you would update your charts with the new date range
-      // updateCharts(start, end);
+
+    // สร้างตัวแปร Date เพื่อคำนวณเปรียบเทียบ
+    const dtStart = new Date(`${startDate}T${startTime}`);
+    const dtEnd = new Date(`${endDate}T${endTime}`);
+
+    let totalPower = 0;           
+    let totalPanels = 0;  
+    let totalReports = 0;         
+    let totalUnusable = 0;        // นับจำนวน CellEfficiency ที่ efficiency<0.5
+
+    // (c) Loop ข้อมูลใน allPowerplantData เพื่อกรองตาม plantId และช่วงเวลา
+    //     array สำหรับ Chart ด้วย (labels แต่ละวัน + data ของแต่ละ powerplant)
+    // --------------------------------------------
+    // ขั้นตอนย่อย:
+    //  1) กรองเฉพาะ Plant ที่ถูกเลือก
+    //  2) แต่ละ Plant: นับ panel_count เพิ่มใน totalPanels
+    //  3) แต่ละ Report ของ Plant: เช็ค date ว่าอยู่ในช่วง dtStart <= date <= dtEnd
+    //     ถ้าใช่:
+    //       - totalReports += 1
+    //       - totalPower += report.energy
+    //       - totalUnusable += report.unusable
+    //       - เก็บ date-string ลงใน Set เพื่อสร้าง labels chart (กรณีจะวาดกราฟ)
+    //       - เก็บ energy ใน dataSet ของ Plant ตัวนั้น
+    // --------------------------------------------
+
+    // เก็บ labels ชั่วคราวแบบไม่ซ้ำ
+    const allDatesSet = new Set();
+
+    // เก็บ dataset แต่ละ Plant สำหรับ Chart
+    const chartDatasets = [];
+
+    allPowerplantData.forEach((plant, idx) => {
+      if (!selectedPlantIds.includes(plant.id)) return;
+
+      // 2) นับ panel_count ของ Plant นี้
+      totalPanels += plant.panel_count;
+
+      // สร้างตัวแปรเก็บ data ของ Chart ผลรายวัน (อาจจะ push energy หลายๆ วันที่ต่างกัน)
+      const dataEntries = [];
+
+      plant.reports.forEach(report => {
+        // แปลง string date จาก report มาเป็น Date object (midnight)
+        const repDate = new Date(report.date); 
+        // เอาเวลาออก (หากต้องการให้ compare เฉพาะวันที่ไม่สนเวลา)
+        // แต่เพราะเราแปลงเป็น YYYY-MM-DD, เลยถือว่าเวลาเป็น 00:00:00 อัตโนมัติ
+
+        // เช็คว่า date อยู่ในช่วง dtStart..dtEnd หรือไม่
+        if (repDate >= dtStart && repDate <= dtEnd) {
+          totalReports += 1;
+          totalPower += report.energy;
+          totalUnusable += report.unusable;
+
+          allDatesSet.add(report.date);
+
+          dataEntries.push({
+            date: report.date,
+            energy: report.energy
+          });
+        }
+      });
+
+      // สร้าง dataset รูปแบบที่ Chart.js ต้องการ (จะแปลงให้เป็น array ตาม labels ด้านล่าง)
+      chartDatasets.push({
+        powerplantId: plant.id,
+        label: plant.name,
+        rawData: dataEntries,   // เก็บข้อมูลดิบไว้ก่อน แล้วจะ map เป็น array ตาม labels
+        borderColor: getRandomColor(idx),
+        tension: 0.3
+      });
+    });
+
+    // (d) แปลง allDatesSet ให้เป็น array ที่เรียงตามวันที่ (ascending)
+    const sortedLabels = Array.from(allDatesSet).sort((a, b) => new Date(a) - new Date(b));
+
+    // (e) เตรียม data array สำหรับแต่ละ dataset ให้ตรงกับลำดับวันที่ใน sortedLabels
+    const finalDatasets = chartDatasets.map(ds => {
+      // สร้าง array ค่าว่างทั้งหมด ก่อน แล้ว map เติมค่าจริงลงตาม sortedLabels
+      const dataArray = sortedLabels.map(labDate => {
+        // หา record ที่ตรงกับ labDate
+        const matched = ds.rawData.find(e => e.date === labDate);
+        return matched ? matched.energy : 0;
+      });
+      return {
+        label: ds.label,
+        data: dataArray,
+        borderColor: ds.borderColor,
+        tension: ds.tension
+      };
+    });
+
+    // 7) อัพเดต Chart.js
+    if (powerplantChart) {
+      powerplantChart.data.labels = sortedLabels;
+      powerplantChart.data.datasets = finalDatasets;
+      powerplantChart.update();
     }
-  }
 
-  function formatDateRange(start, end) {
-    // Format dates with time
-    const formatDateTime = (date) => {
-      return date.toLocaleString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-      });
-    };
-    
-    return `${formatDateTime(start)} - ${formatDateTime(end)}`;
-  }
-
-  function updateDateRangeDisplay(dateRangeText) {
-    document.getElementById('dateRangeText').textContent = `: ${dateRangeText}`;
-  }
-
-  // Initialize with default date range
-  window.addEventListener('DOMContentLoaded', () => {
-    // Set default dates (current day and next day)
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-    
-    // Format dates for input fields
-    const formatDateForInput = (date) => {
-      return date.toISOString().split('T')[0];
-    };
-    
-    // Set default values for date inputs
-    document.getElementById('startDate').value = formatDateForInput(today);
-    document.getElementById('endDate').value = formatDateForInput(tomorrow);
-    
-    // Set default times
-    document.getElementById('startTime').value = "00:00";
-    document.getElementById('endTime').value = "00:00";
-    
-    // Apply the default range
-    applyCustomDateRange();
-  });
-
-
-  
-  // Updated function to work with dynamic powerplant data
-  function updatePowerplantChart() {
-    const selectedPlantIds = Array.from(document.querySelectorAll('.powerplant-checkbox:checked'))
-      .map(cb => parseInt(cb.value));
-
-    const startDate = new Date(`${document.getElementById("startDate").value}T${document.getElementById("startTime").value}`);
-    const endDate = new Date(`${document.getElementById("endDate").value}T${document.getElementById("endTime").value}`);
-
-    // Build labels: unique sorted dates across all selected reports
-    let allDates = new Set();
-
-    const filteredData = allPowerplantData
-      .filter(p => selectedPlantIds.includes(p.id))
-      .map(p => {
-        const entries = p.reports.filter(r => {
-          const d = new Date(r.date);
-          return d >= startDate && d <= endDate;
-        });
-
-        // Add valid dates to global label set
-        entries.forEach(e => allDates.add(e.date));
-
-        return {
-          label: p.name,
-          data: entries.map(e => e.energy),
-          borderColor: getRandomColor(p.id),
-          tension: 0.3
-        };
-      });
-
-    // Sort dates and use them as labels
-    const sortedLabels = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
-
-    // Update chart
-    window.powerplantChart.data.labels = sortedLabels;
-    window.powerplantChart.data.datasets = filteredData;
-    window.powerplantChart.update();
+    // 8) อัพเดตตัวเลข Summary Cards ลงใน HTML
+    const fmt = new Intl.NumberFormat('en-US'); // ใช้แปลงหลักพันใส่ comma
+    document.getElementById('total-power-value').innerText = `${fmt.format(totalPower)} W`;
+    document.getElementById('total-panel-value').innerText = totalPanels;
+    document.getElementById('total-reports-value').innerText = totalReports;
+    document.getElementById('total-unusable-value').innerText = totalUnusable;
   }
 </script>
 {% endblock %}
